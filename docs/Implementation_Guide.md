@@ -204,35 +204,57 @@ This repository includes several agents to demonstrate different functionalities
 
 1. **Echo Agent (`agents/echo.py`):**
 
-   - **Purpose:**  
-     Returns a user-specified message or echoes a preset string.
+   - **Purpose:**
+     Returns a simple echo message in JSON format.
      
-   - **Usage:**  
-     Call `/agent/echo` to see the echo response.
+   - **Usage:**
+     ```bash
+     curl http://localhost:8000/agent/echo
+     # Returns: {"agent": "echo", "result": {"message": "Echo from agent!"}}
+     ```
 
 2. **Time Agent (`agents/time.py`):**
 
-   - **Purpose:**  
-     Returns the current server time.
+   - **Purpose:**
+     Returns the current UTC time in ISO 8601 format.
      
-   - **Usage:**  
-     Call `/agent/time` to receive the current date and time.
+   - **Usage:**
+     ```bash
+     curl http://localhost:8000/agent/time
+     # Returns: {"agent": "time", "result": {"time": "2025-02-24T15:45:56Z"}}
+     ```
 
 3. **Joke Agent (`agents/joke.py`):**
 
-   - **Purpose:**  
-     Returns a random joke from a hard-coded list.
+   - **Purpose:**
+     Returns a random programming joke from a collection.
      
-   - **Usage:**  
-     Access `/agent/joke` for a fun, random joke.
+   - **Usage:**
+     ```bash
+     curl http://localhost:8000/agent/joke
+     # Returns: {"agent": "joke", "result": {"joke": "<random programming joke>"}}
+     ```
+     
+   - **Features:**
+     - Collection of 10 programming-related jokes
+     - Random selection on each request
+     - Family-friendly content
 
 4. **Quote Agent (`agents/quote.py`):**
 
-   - **Purpose:**  
-     Returns a random inspirational quote from a predefined collection.
+   - **Purpose:**
+     Returns a random inspirational quote from a collection.
      
-   - **Usage:**  
-     Visit `/agent/quote` to get a motivational quote.
+   - **Usage:**
+     ```bash
+     curl http://localhost:8000/agent/quote
+     # Returns: {"agent": "quote", "result": {"quote": "<random inspirational quote>"}}
+     ```
+     
+   - **Features:**
+     - Collection of 10 inspirational quotes
+     - Includes quotes from notable figures
+     - Random selection on each request
 
 > **Naming Convention:**  
 > Each agent file should be named in all lowercase (e.g., `math.py`, `classifier.py`, etc.) so that it is automatically accessible via the `/agent/{agent_name}` endpoint.

@@ -63,3 +63,42 @@ def test_math_agent_missing_params():
     response = client.get("/agent/math")
     assert response.status_code == 200
     assert "Error: Invalid token" in response.json()["result"]
+
+def test_echo_agent():
+    """Test echo agent response"""
+    response = client.get("/agent/echo")
+    assert response.status_code == 200
+    assert response.json() == {
+        "agent": "echo",
+        "result": {"message": "Echo from agent!"}
+    }
+
+def test_time_agent():
+    """Test time agent response format"""
+    response = client.get("/agent/time")
+    assert response.status_code == 200
+    result = response.json()
+    assert "agent" in result and result["agent"] == "time"
+    assert "result" in result and "time" in result["result"]
+    # Verify ISO 8601 format (rough check)
+    assert "T" in result["result"]["time"] and "Z" in result["result"]["time"]
+
+def test_joke_agent():
+    """Test joke agent response format"""
+    response = client.get("/agent/joke")
+    assert response.status_code == 200
+    result = response.json()
+    assert "agent" in result and result["agent"] == "joke"
+    assert "result" in result and "joke" in result["result"]
+    assert isinstance(result["result"]["joke"], str)
+    assert len(result["result"]["joke"]) > 0
+
+def test_quote_agent():
+    """Test quote agent response format"""
+    response = client.get("/agent/quote")
+    assert response.status_code == 200
+    result = response.json()
+    assert "agent" in result and result["agent"] == "quote"
+    assert "result" in result and "quote" in result["result"]
+    assert isinstance(result["result"]["quote"], str)
+    assert len(result["result"]["quote"]) > 0
