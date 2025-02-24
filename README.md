@@ -49,7 +49,7 @@ pytest tests/
 
 ## Documentation
 - [Implementation Guide](docs/Implementation_Guide.md)
-- [Testing Documentation](docs/tests.md)
+- [Testing Documentation](docs/Testing_and_Validation.md)
 - [Technical Specifications](docs/Technical_Specifications.md)
 
 ## Future Enhancements

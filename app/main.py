@@ -38,6 +38,10 @@ async def execute_agent(agent_name: str, request: Request):
             agent_module.TOKEN = request.query_params['token']
         if hasattr(agent_module, 'EXPRESSION') and 'expression' in request.query_params:
             agent_module.EXPRESSION = request.query_params['expression']
+        if hasattr(agent_module, 'INPUT_TEXT') and 'INPUT_TEXT' in request.query_params:
+            agent_module.INPUT_TEXT = request.query_params['INPUT_TEXT']
+        if hasattr(agent_module, 'TEXT_TO_SUMMARIZE') and 'TEXT_TO_SUMMARIZE' in request.query_params:
+            agent_module.TEXT_TO_SUMMARIZE = request.query_params['TEXT_TO_SUMMARIZE']
             
         output = run_agent(agent_module)
         return {"agent": agent_name, "result": output}
