@@ -106,12 +106,12 @@ def test_agents_endpoint():
 ### Agent Tests
 ```python
 def test_math_agent():
-    response = client.get("/math?token=MATH_SECRET&expression=3*(4%2B2)")
+    response = client.get("/agent/math?token=MATH_SECRET&expression=3*(4%2B2)")
     assert response.status_code == 200
     assert response.json() == {"agent": "math", "result": 18}
 
 def test_classifier_agent():
-    response = client.get("/classifier?INPUT_TEXT=Hello,%20how%20are%20you?")
+    response = client.get("/agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?")
     assert response.status_code == 200
     result = response.json()
     assert "classification" in result["result"]

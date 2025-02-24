@@ -50,25 +50,34 @@ uvicorn app.main:app --reload
 3. Test the endpoints:
 
 Core Endpoints:
-- Welcome message: http://127.0.0.1:8000/
-- Health check: http://127.0.0.1:8000/health
-- List all agents: http://127.0.0.1:8000/agents
+- Welcome message: GET /
+- Health check: GET /health
+- List all agents: GET /agents
 
 Simple Agents (No Parameters):
-- Hello World: http://127.0.0.1:8000/hello_world
-- Goodbye: http://127.0.0.1:8000/goodbye
-- Echo: http://127.0.0.1:8000/echo
-- Time: http://127.0.0.1:8000/time
-- Joke: http://127.0.0.1:8000/joke
-- Quote: http://127.0.0.1:8000/quote
+- Hello World: GET /agent/hello_world
+- Goodbye: GET /agent/goodbye
+- Echo: GET /agent/echo
+- Time: GET /agent/time
+- Joke: GET /agent/joke
+- Quote: GET /agent/quote
 
 Advanced Agents (With Parameters):
-- Math: http://127.0.0.1:8000/math?token=MATH_SECRET&expression=3*(4%2B2)
-- Classifier: http://127.0.0.1:8000/classifier?INPUT_TEXT=Hello,%20how%20are%20you?
-- Summarizer: http://127.0.0.1:8000/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient.
+- Math: GET /agent/math?token=MATH_SECRET&expression=3*(4%2B2)
+- Classifier: GET /agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?
+- Summarizer: GET /agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient.
 
-Legacy Support:
-- Generic endpoint: http://127.0.0.1:8000/agent/{agent_name}
+Example Usage:
+```bash
+# Start the server
+uvicorn app.main:app --reload
+
+# Test an endpoint (replace SERVER_URL with your server address)
+curl SERVER_URL/agent/hello_world
+
+# Test with parameters
+curl "SERVER_URL/agent/math?token=MATH_SECRET&expression=3*(4%2B2)"
+```
 
 ## Running Tests
 ```bash

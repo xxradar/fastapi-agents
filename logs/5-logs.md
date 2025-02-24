@@ -49,8 +49,8 @@ Steps will be logged here as they are completed, following the implementation pl
 
 ## Implementation Complete
 The FastAPI Agent System has been successfully finalized with:
-- Dedicated endpoints for all agents
-- Comprehensive documentation
+- Dedicated endpoints for all agents (using /agent prefix)
+- Comprehensive documentation (with SERVER_URL variable)
 - MIT License
 - Robust testing and validation
 
