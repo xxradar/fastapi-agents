@@ -85,3 +85,18 @@ The Hello World Agent System has been successfully implemented with:
 - Complete documentation
 
 The system is now ready for future enhancements and Supabase integration.
+
+## Effort Summary (go install github.com/boyter/scc@latest)
+
+| Language   | Files | Lines | Blanks | Comments | Code  | Complexity |
+|------------|-------|-------|--------|----------|-------|------------|
+| Markdown   | 11    | 1576  | 256    | 0        | 1320  | 0          |
+| Python     | 8     | 118   | 13     | 12       | 93    | 3          |
+| License    | 1     | 21    | 4      | 0        | 17    | 0          |
+| Plain Text | 1     | 4     | 0      | 0        | 4     | 0          |
+| gitignore  | 1     | 171   | 31     | 61       | 79    | 0          |
+| **Total**  | **22**| **1890** | **304** | **73**    | **1513** | **3**       |
+
+**Estimated Cost to Develop:** \$41,727  
+**Estimated Schedule Effort:** 4.588310 months  
+**Estimated People Required:** 1.077279  
