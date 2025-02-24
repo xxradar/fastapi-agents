@@ -147,21 +147,42 @@ This repository includes several agents to demonstrate different functionalities
 
 1. **Math Agent (`agents/math.py`):**
 
-   - **Purpose:**  
+   - **Purpose:**
      Evaluates arithmetic expressions after verifying a hard-coded token.
      
-   - **Functionality:**  
-     - Checks if a global variable `TOKEN` matches the expected token (`"MATH_SECRET"`).  
+   - **Functionality:**
+     - Checks if a global variable `TOKEN` matches the expected token (`"MATH_SECRET"`).
      - Safely evaluates the expression provided in a global variable `EXPRESSION`.
+     - Uses AST parsing for secure expression evaluation.
+     - Provides comprehensive error handling.
      
-   - **Usage (in-code comments):**
-     ```python
-     # Example usage:
-     # from agents import math
-     # math.TOKEN = "MATH_SECRET"
-     # math.EXPRESSION = "3 * (4 + 2)"
-     # result = math.agent_main()  # Expected output: 18
+   - **Usage via API:**
+     ```bash
+     # Example API call:
+     curl "http://localhost:8000/agent/math?token=MATH_SECRET&expression=3*(4%2B2)"
+     # Expected response:
+     # {"agent": "math", "result": 18}
      ```
+     
+   - **Usage in Code:**
+     ```python
+     # Direct usage in Python:
+     from agents import math
+     math.TOKEN = "MATH_SECRET"
+     math.EXPRESSION = "3 * (4 + 2)"
+     result = math.agent_main()  # Expected output: 18
+     
+     # Error handling examples:
+     math.TOKEN = "WRONG_TOKEN"  # Returns: "Error: Invalid token. Access denied."
+     math.TOKEN = "MATH_SECRET"
+     math.EXPRESSION = "import os"  # Returns: "Error: Invalid expression..."
+     ```
+     
+   - **Security Features:**
+     - Token-based authorization required for execution
+     - Safe expression evaluation using AST parsing
+     - Protection against code injection
+     - Comprehensive input validation
    
 2. **Classifier Agent (`agents/classifier.py`):**
 

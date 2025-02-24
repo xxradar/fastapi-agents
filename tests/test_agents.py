@@ -33,3 +33,33 @@ def test_invalid_agent():
     # For now, we'll just verify the 404 response
     response = client.get("/agent/invalid")
     assert response.status_code == 404
+
+def test_math_agent_valid():
+    """Test math agent with valid token and expression"""
+    response = client.get("/agent/math?token=MATH_SECRET&expression=3*(4%2B2)")
+    assert response.status_code == 200
+    assert response.json() == {
+        "agent": "math",
+        "result": 18
+    }
+
+def test_math_agent_invalid_token():
+    """Test math agent with invalid token"""
+    response = client.get("/agent/math?token=WRONG_TOKEN&expression=2%2B2")
+    assert response.status_code == 200
+    assert response.json() == {
+        "agent": "math",
+        "result": "Error: Invalid token. Access denied."
+    }
+
+def test_math_agent_invalid_expression():
+    """Test math agent with invalid expression"""
+    response = client.get("/agent/math?token=MATH_SECRET&expression=import%20os")
+    assert response.status_code == 200
+    assert "Error: Invalid expression" in response.json()["result"]
+
+def test_math_agent_missing_params():
+    """Test math agent with missing parameters"""
+    response = client.get("/agent/math")
+    assert response.status_code == 200
+    assert "Error: Invalid token" in response.json()["result"]

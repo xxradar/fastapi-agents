@@ -1,5 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
+from typing import Optional
 import os
 from agents.dspy_integration import load_agent, run_agent
 
@@ -23,7 +24,7 @@ async def health_check():
     return JSONResponse({"status": "ok", "message": "Healthy"})
 
 @app.get("/agent/{agent_name}")
-async def execute_agent(agent_name: str):
+async def execute_agent(agent_name: str, request: Request):
     # Construct the path to the agent file
     agent_file = os.path.join("agents", f"{agent_name}.py")
     if not os.path.exists(agent_file):
@@ -31,6 +32,13 @@ async def execute_agent(agent_name: str):
     
     try:
         agent_module = load_agent(agent_file)
+        
+        # Set global variables if they are provided and the agent supports them
+        if hasattr(agent_module, 'TOKEN') and 'token' in request.query_params:
+            agent_module.TOKEN = request.query_params['token']
+        if hasattr(agent_module, 'EXPRESSION') and 'expression' in request.query_params:
+            agent_module.EXPRESSION = request.query_params['expression']
+            
         output = run_agent(agent_module)
         return {"agent": agent_name, "result": output}
     except Exception as e:
