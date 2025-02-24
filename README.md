@@ -4,24 +4,35 @@ A FastAPI-based dynamic agent system that leverages the ReACT methodology for bu
 
 ## Features
 - Dynamic agent loading and execution
-- Multiple agent support
+- Multiple agent support with dedicated endpoints
+- Agent listing and discovery endpoint
 - Health check endpoint
 - Error handling
 - Comprehensive test suite
+- Token-based authorization (for math agent)
+- Advanced text processing (classifier and summarizer agents)
 
 ## Project Structure
 ```
 fastapi-agent-system/
 ├─ app/
-│   ├─ main.py         # FastAPI application entrypoint
-│   ├─ models.py       # (For future use: data models)
+│   ├─ main.py          # FastAPI application entrypoint
+│   └─ models.py        # (For future use: data models)
 ├─ agents/
-│   ├─ __init__.py     # Package initializer
-│   ├─ hello_world.py  # Hello World agent
-│   ├─ goodbye.py      # Goodbye agent
-├─ docs/               # Documentation
-├─ tests/              # Test suite
-├─ requirements.txt    # Dependencies
+│   ├─ __init__.py      # Package initializer
+│   ├─ hello_world.py   # Hello World agent
+│   ├─ goodbye.py       # Goodbye agent
+│   ├─ math.py          # Math agent with token verification
+│   ├─ classifier.py    # Text classification agent
+│   ├─ summarizer.py    # Text summarization agent
+│   ├─ echo.py          # Echo message agent
+│   ├─ time.py          # Current time agent
+│   ├─ joke.py          # Random joke agent
+│   └─ quote.py         # Inspirational quote agent
+├─ docs/                # Documentation
+├─ tests/               # Test suite
+├─ requirements.txt     # Dependencies
+└─ LICENSE             # MIT License
 ```
 
 ## Getting Started
@@ -37,10 +48,27 @@ uvicorn app.main:app --reload
 ```
 
 3. Test the endpoints:
+
+Core Endpoints:
 - Welcome message: http://127.0.0.1:8000/
 - Health check: http://127.0.0.1:8000/health
-- Hello World agent: http://127.0.0.1:8000/agent/hello_world
-- Goodbye agent: http://127.0.0.1:8000/agent/goodbye
+- List all agents: http://127.0.0.1:8000/agents
+
+Simple Agents (No Parameters):
+- Hello World: http://127.0.0.1:8000/hello_world
+- Goodbye: http://127.0.0.1:8000/goodbye
+- Echo: http://127.0.0.1:8000/echo
+- Time: http://127.0.0.1:8000/time
+- Joke: http://127.0.0.1:8000/joke
+- Quote: http://127.0.0.1:8000/quote
+
+Advanced Agents (With Parameters):
+- Math: http://127.0.0.1:8000/math?token=MATH_SECRET&expression=3*(4%2B2)
+- Classifier: http://127.0.0.1:8000/classifier?INPUT_TEXT=Hello,%20how%20are%20you?
+- Summarizer: http://127.0.0.1:8000/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient.
+
+Legacy Support:
+- Generic endpoint: http://127.0.0.1:8000/agent/{agent_name}
 
 ## Running Tests
 ```bash
@@ -72,3 +100,6 @@ pytest tests/
 ## Original Gist
 https://gist.github.com/bar181/7fc0286841a38c72848ed037d0e561fd
 Author: Bradley Ross (bar181 on gists and github)
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

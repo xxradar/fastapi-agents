@@ -1,10 +1,137 @@
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import JSONResponse, Response
-from typing import Optional
+from typing import Optional, List, Dict, Any
 import os
 from agents.dspy_integration import load_agent, run_agent
 
-app = FastAPI(title="Hello World Agent System")
+app = FastAPI(title="FastAPI Agent System")
+
+# Agent information dictionary
+AGENTS_INFO: List[Dict[str, str]] = [
+    {
+        "name": "hello_world",
+        "description": "Returns a simple hello world message.",
+        "instructions": "Call /hello_world with no additional parameters."
+    },
+    {
+        "name": "goodbye",
+        "description": "Returns a goodbye message.",
+        "instructions": "Call /goodbye with no additional parameters."
+    },
+    {
+        "name": "echo",
+        "description": "Returns an echo message.",
+        "instructions": "Call /echo with no additional parameters."
+    },
+    {
+        "name": "time",
+        "description": "Returns the current server time.",
+        "instructions": "Call /time with no additional parameters."
+    },
+    {
+        "name": "joke",
+        "description": "Returns a random joke.",
+        "instructions": "Call /joke with no additional parameters."
+    },
+    {
+        "name": "quote",
+        "description": "Returns an inspirational quote.",
+        "instructions": "Call /quote with no additional parameters."
+    },
+    {
+        "name": "math",
+        "description": "Evaluates a math expression after verifying a token.",
+        "instructions": "Call /math with token=MATH_SECRET and expression parameters."
+    },
+    {
+        "name": "classifier",
+        "description": "Classifies input text using advanced rule-based logic.",
+        "instructions": "Call /classifier with INPUT_TEXT parameter."
+    },
+    {
+        "name": "summarizer",
+        "description": "Summarizes a block of text.",
+        "instructions": "Call /summarizer with TEXT_TO_SUMMARIZE parameter."
+    }
+]
+
+@app.get("/agents")
+async def list_all_agents() -> Dict[str, List[Dict[str, str]]]:
+    """
+    Returns a list of all available agents with brief descriptions and instructions.
+    """
+    return {"agents": AGENTS_INFO}
+
+@app.get("/hello_world")
+async def hello_world_agent():
+    agent_file = os.path.join("agents", "hello_world.py")
+    agent_module = load_agent(agent_file)
+    output = run_agent(agent_module)
+    return {"agent": "hello_world", "result": output}
+
+@app.get("/goodbye")
+async def goodbye_agent():
+    agent_file = os.path.join("agents", "goodbye.py")
+    agent_module = load_agent(agent_file)
+    output = run_agent(agent_module)
+    return {"agent": "goodbye", "result": output}
+
+@app.get("/echo")
+async def echo_agent():
+    agent_file = os.path.join("agents", "echo.py")
+    agent_module = load_agent(agent_file)
+    output = run_agent(agent_module)
+    return {"agent": "echo", "result": output}
+
+@app.get("/time")
+async def time_agent():
+    agent_file = os.path.join("agents", "time.py")
+    agent_module = load_agent(agent_file)
+    output = run_agent(agent_module)
+    return {"agent": "time", "result": output}
+
+@app.get("/joke")
+async def joke_agent():
+    agent_file = os.path.join("agents", "joke.py")
+    agent_module = load_agent(agent_file)
+    output = run_agent(agent_module)
+    return {"agent": "joke", "result": output}
+
+@app.get("/quote")
+async def quote_agent():
+    agent_file = os.path.join("agents", "quote.py")
+    agent_module = load_agent(agent_file)
+    output = run_agent(agent_module)
+    return {"agent": "quote", "result": output}
+
+@app.get("/math")
+async def math_agent(token: Optional[str] = None, expression: Optional[str] = None):
+    agent_file = os.path.join("agents", "math.py")
+    agent_module = load_agent(agent_file)
+    if hasattr(agent_module, 'TOKEN'):
+        agent_module.TOKEN = token
+    if hasattr(agent_module, 'EXPRESSION'):
+        agent_module.EXPRESSION = expression
+    output = run_agent(agent_module)
+    return {"agent": "math", "result": output}
+
+@app.get("/classifier")
+async def classifier_agent(INPUT_TEXT: Optional[str] = None):
+    agent_file = os.path.join("agents", "classifier.py")
+    agent_module = load_agent(agent_file)
+    if hasattr(agent_module, 'INPUT_TEXT'):
+        agent_module.INPUT_TEXT = INPUT_TEXT
+    output = run_agent(agent_module)
+    return {"agent": "classifier", "result": output}
+
+@app.get("/summarizer")
+async def summarizer_agent(TEXT_TO_SUMMARIZE: Optional[str] = None):
+    agent_file = os.path.join("agents", "summarizer.py")
+    agent_module = load_agent(agent_file)
+    if hasattr(agent_module, 'TEXT_TO_SUMMARIZE'):
+        agent_module.TEXT_TO_SUMMARIZE = TEXT_TO_SUMMARIZE
+    output = run_agent(agent_module)
+    return {"agent": "summarizer", "result": output}
 
 @app.get("/favicon.ico")
 async def get_favicon():

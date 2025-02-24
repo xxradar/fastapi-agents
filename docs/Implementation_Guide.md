@@ -323,11 +323,34 @@ This repository includes several agents to demonstrate different functionalities
        curl http://127.0.0.1:8000/agent/math
        ```
   
-  - **List and Execute Other Agents:**  
-    Simply use the corresponding agent name in the URL (e.g., `/agent/echo`, `/agent/time`, etc.).
+  - **List Available Agents:**
+    ```bash
+    curl http://localhost:8000/agents
+    # Returns a list of all available agents with descriptions and usage instructions
+    ```
 
-- **Testing with Swagger UI:**  
-  Visit [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) to interact with the API endpoints.
+  - **Execute Agents via Dedicated Endpoints:**
+    Each agent has its own dedicated endpoint for direct access:
+    ```bash
+    # Simple agents (no parameters)
+    curl http://localhost:8000/hello_world
+    curl http://localhost:8000/goodbye
+    curl http://localhost:8000/echo
+    curl http://localhost:8000/time
+    curl http://localhost:8000/joke
+    curl http://localhost:8000/quote
+
+    # Agents with parameters
+    curl "http://localhost:8000/math?token=MATH_SECRET&expression=3*(4%2B2)"
+    curl "http://localhost:8000/classifier?INPUT_TEXT=Hello,%20how%20are%20you?"
+    curl "http://localhost:8000/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20an%20efficient%20framework."
+    ```
+
+  - **Legacy Agent Execution:**
+    The generic `/agent/{agent_name}` endpoint is still available for backward compatibility.
+
+- **Testing with Swagger UI:**
+ Visit [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs) to interact with the API endpoints.
 
 ---
 
