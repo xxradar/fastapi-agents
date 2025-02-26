@@ -18,21 +18,20 @@ A FastAPI-based dynamic agent system that leverages the ReACT methodology for bu
 - Error handling
 - Comprehensive test suite
 - Token-based authorization (for math agent)
-- Advanced text processing (classifier and summarizer agents)
 
 ## Project Structure
 ```
 fastapi-agent-system/
 ├─ app/
 │   ├─ main.py          # FastAPI application entrypoint
+│   ├─ agent_routes.py  # Agent routes
+│   ├─ agents_info.py   # Agent information
 │   └─ models.py        # (For future use: data models)
 ├─ agents/
 │   ├─ __init__.py      # Package initializer
 │   ├─ hello_world.py   # Hello World agent
 │   ├─ goodbye.py       # Goodbye agent
 │   ├─ math.py          # Math agent with token verification
-│   ├─ classifier.py    # Text classification agent
-│   ├─ summarizer.py    # Text summarization agent
 │   ├─ echo.py          # Echo message agent
 │   ├─ time.py          # Current time agent
 │   ├─ joke.py          # Random joke agent
@@ -51,8 +50,19 @@ pip install -r requirements.txt
 ```
 
 2. Run the server:
+
+For standalone modules:
 ```bash
 uvicorn app.main:app --reload
+```
+
+For running within the mono repo:
+```bash
+# First, navigate to the specific module directory
+cd starter
+
+# Then run the server using the Python -m flag
+python -m uvicorn app.main:app --reload
 ```
 
 3. Test the endpoints:
@@ -72,14 +82,9 @@ Simple Agents (No Parameters):
 
 Advanced Agents (With Parameters):
 - Math: GET /agent/math?token=MATH_SECRET&expression=3*(4%2B2)
-- Classifier: GET /agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?
-- Summarizer: GET /agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient.
 
 Example Usage:
 ```bash
-# Start the server
-uvicorn app.main:app --reload
-
 # Test an endpoint (replace SERVER_URL with your server address)
 curl SERVER_URL/agent/hello_world
 
@@ -88,8 +93,19 @@ curl "SERVER_URL/agent/math?token=MATH_SECRET&expression=3*(4%2B2)"
 ```
 
 ## Running Tests
+
+For standalone modules:
 ```bash
 pytest tests/
+```
+
+For running within the mono repo:
+```bash
+# First, navigate to the specific module directory
+cd starter
+
+# Then run the tests using the Python -m flag
+python -m pytest tests
 ```
 
 ## Documentation

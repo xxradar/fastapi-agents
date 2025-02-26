@@ -7,7 +7,7 @@ def test_read_root():
     """Test the root endpoint returns welcome message"""
     response = client.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Welcome to the Hello World Agent System!"}
+    assert response.json() == {"message": "Welcome to the Bradley Ross (bar181) Agent System!"}
 
 def test_health_check():
     """Test the health check endpoint"""
