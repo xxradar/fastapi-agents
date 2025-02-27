@@ -12,6 +12,8 @@ This module contains a variety of agents organized into different categories:
 ## Features
 
 ✅ **Advanced Text Processing with DSPy**
+   - **DSPy Overview:** DSPy is a framework for building complex AI systems using declarative programming. It allows you to define the desired behavior of your system and automatically optimizes the underlying prompts and models to achieve the best performance. DSPy excels in tasks requiring reasoning, multi-hop information retrieval, and complex decision-making. It works by composing smaller modules (like prompting, filtering, or re-ranking) into larger programs, and then automatically tuning these programs to maximize their effectiveness.
+   - **DSPy Use Cases:** DSPy is particularly well-suited for building question answering systems, chatbots, and other applications that require sophisticated natural language understanding and generation. It is designed to be adaptable to different models and data sources, making it a versatile tool for a wide range of AI tasks.
    - **Classifier Agent**: Uses advanced rule-based logic for text classification.
    - **Summarizer Agent**: Processes and summarizes long-form text.
    - **TextRank Summarizer**: Summarizes text using the TextRank algorithm.
@@ -36,6 +38,14 @@ This module contains a variety of agents organized into different categories:
 
 ✅ **API Integration**
    - Each agent is accessible via a dedicated API endpoint.
+
+---
+
+## Agent Details
+
+- **Classifier Agent**: This agent uses DSPy to classify text based on predefined categories. It takes an input text and returns the predicted category. DSPy optimizes the prompts used for classification to achieve high accuracy.
+- **Summarizer Agent**: This agent leverages DSPy to summarize long-form text. It takes an input text and returns a concise summary. DSPy automatically tunes the summarization prompts to generate summaries that are both informative and coherent.
+- **TextRank Summarizer**: This agent uses the TextRank algorithm to summarize text. It identifies the most important sentences in the text and combines them to create a summary.
 
 ---
 
@@ -146,6 +156,8 @@ cd dspy
 # Then run the tests using the Python -m flag
 python -m pytest tests
 ```
+
+The test suite includes 30 tests to ensure the agents are functioning correctly.
 
 ## Documentation
 - /docs main documentation for this module
