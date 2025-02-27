@@ -151,7 +151,7 @@ pytest tests/
 For running within the mono repo:
 ```bash
 # First, navigate to the specific module directory
-cd dspy
+cd base-framework
 
 # Then run the tests using the Python -m flag
 python -m pytest tests

@@ -1,2 +1,2 @@
 def agent_main():
-    return "Hello, World from the agent!"
+    return "Welcome to the Agent Base Framework! (https://github.com/bar181/fastapi-agents)"

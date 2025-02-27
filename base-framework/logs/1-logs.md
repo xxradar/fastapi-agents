@@ -1,4 +1,4 @@
-Auto# Implementation Log - Hello World Agent
+### **Example Log: `/logs/1-logs.md`**
 
 ## Step 1: Environment Setup - COMPLETED
 - Created project structure with all required directories
