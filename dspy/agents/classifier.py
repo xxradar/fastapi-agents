@@ -95,7 +95,7 @@ def register_routes(router: APIRouter):
 
     agent = ClassifierAgent()
 
-    @router.get("/classifier", summary="Classifies input text", response_model=Dict[str, Any])  # Include response_model
+    @router.get("/classifier", summary="Classifies input text", response_model=Dict[str, Any], tags=["Dspy Agents"])
     async def classifier_route(INPUT_TEXT: Optional[str] = Query(None, description="The text to be classified")):
         """
         Classifies the input text.

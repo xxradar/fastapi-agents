@@ -80,7 +80,7 @@ def register_routes(router: APIRouter):
     """Registers the TextRank summarizer agent's routes."""
     agent = TextRankSummarizerAgent()
 
-    @router.get("/textrank_summarizer", summary="Summarizes input text using TextRank", response_model=Dict[str, Any])
+    @router.get("/textrank_summarizer", summary="Summarizes input text using TextRank", response_model=Dict[str, Any], tags=["Dspy Agents"])
     async def textrank_summarizer_route(
         TEXT_TO_SUMMARIZE: Optional[str] = Query(None, description="The text to be summarized"),
         num_sentences: int = Query(2, description="Number of sentences in summary")

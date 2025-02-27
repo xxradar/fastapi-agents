@@ -1,4 +1,4 @@
-```markdown
+\`\`\`markdown
 # Final Steps Plan Document
 
 This document outlines the final tasks and updates needed to complete the FastAPI Agent System. The goals for this phase are to refine and expand the API endpoints, update the documentation, and finalize repository details (including the README and license).
@@ -50,6 +50,12 @@ In addition to the generic `/agent/{agent_name}` endpoint, add dedicated endpoin
     - **TEXT_TO_SUMMARIZE:** Set this global variable to the text you wish to summarize.
   - **Instructions:** Define the text to summarize before calling the endpoint. The agent returns a concise summary and an explanation of its process.
 
+- **TextRank Summarizer Agent (`/agent/textrank_summarizer`):**
+  - **Description:** Summarizes a block of text using the TextRank algorithm.
+  - **Parameters:**
+    - **TEXT_TO_SUMMARIZE:** Set this global variable to the text you wish to summarize.
+    - **NUM_SENTENCES:** Set this global variable to the number of sentences you want in the summary.
+  - **Instructions:** Define the text to summarize and the number of sentences before calling the endpoint. The agent returns a concise summary.
 
  - add the hello-world and goodbye agents to the list - include appropriate descriptions
 ### B. Endpoint to List All Agents
@@ -101,6 +107,11 @@ async def list_all_agents():
             "name": "summarizer",
             "description": "Summarizes a block of text.",
             "instructions": "Set TEXT_TO_SUMMARIZE before calling /agent/summarizer."
+        },
+        {
+            "name": "textrank_summarizer",
+            "description": "Summarizes a block of text using the TextRank algorithm.",
+            "instructions": "Set TEXT_TO_SUMMARIZE and NUM_SENTENCES before calling /agent/textrank_summarizer."
         }
     ]
     return {"agents": agents_info}
@@ -117,7 +128,7 @@ async def list_all_agents():
 - **Implementation_Guide.md:**  
   - Update the guide to include the new dedicated endpoints for each agent.
   - Add parameter details and usage examples for the math, classifier, and summarizer agents.
-
+  - Add parameter details and usage examples for the textrank_summarizer agent.
 
 - **Technical_Specifications.md:**  
   - Include the new endpoints with parameter descriptions.
@@ -193,4 +204,4 @@ This final steps plan document details:
 With these final steps completed, the FastAPI Agent System will be fully documented, all endpoints will be clearly defined and tested, and the repository will be ready for release as an open source project under the MIT License.
 
 ---
-```
+\`\`\`

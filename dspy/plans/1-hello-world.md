@@ -33,7 +33,8 @@ This implementation will use the base hello_world_agent demo repo as a reference
   │   ├─ models.py       # (For future use: data models)
   ├─ agents/
   │   ├─ __init__.py     # Package initializer for agent modules
-  │   ├─ hello_world.py  # Hello World agent (single file)
+  │   ├─ hello_world.py          # Hello World agent (single file)
+  │   ├─ textrank_summarizer.py  # TextRank Summarizer agent (single file)
   ├─ docs/
   │   ├─ Architecture.md           # System structure and data flow
   │   ├─ Technical_Specifications.md # API endpoints, data models, schema

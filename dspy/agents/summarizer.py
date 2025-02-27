@@ -53,7 +53,7 @@ def register_routes(router: APIRouter):
     """Registers the summarizer agent's routes with the provided APIRouter."""
 
     
-    @router.get("/summarizer", summary="Summarizes input text", response_model=Dict[str, Any])
+    @router.get("/summarizer", summary="Summarizes input text", response_model=Dict[str, Any], tags=["Dspy Agents"])
     async def summarizer_route(
         TEXT_TO_SUMMARIZE: Optional[str] = Query(None, description="The text to be summarized"),
         max_length: int = Query(10, description="Maximum length of the summary")

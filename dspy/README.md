@@ -1,6 +1,11 @@
 # DSPy Agents
 
-This module contains agents that leverage **DSPy** for advanced text processing tasks, including classification and summarization. It also includes foundational agents (`hello_world` and `goodbye`) for demonstration purposes.
+This module contains a variety of agents organized into different categories:
+
+1. **DSPy Agents**: Advanced text processing agents leveraging DSPy
+2. **Simple Agents**: Basic agents that return simple responses without validation
+3. **Agents with Validation**: Agents that require validation (like token verification)
+4. **Dynamic Agents**: Agents that are loaded dynamically at runtime
 
 ---
 
@@ -9,13 +14,25 @@ This module contains agents that leverage **DSPy** for advanced text processing 
 ✅ **Advanced Text Processing with DSPy**
    - **Classifier Agent**: Uses advanced rule-based logic for text classification.
    - **Summarizer Agent**: Processes and summarizes long-form text.
+   - **TextRank Summarizer**: Summarizes text using the TextRank algorithm.
+
+✅ **Simple Utility Agents**
+   - **Hello World**: Returns a simple greeting.
+   - **Goodbye**: Returns a farewell message.
+   - **Echo**: Returns an echo message.
+   - **Time**: Returns the current time in ISO 8601 format.
+   - **Joke**: Returns a random programming joke.
+   - **Quote**: Returns an inspirational quote.
+
+✅ **Agents with Validation**
+   - **Math**: Evaluates mathematical expressions after token verification.
 
 ✅ **Dynamic Agent Execution**
    - **Agents are loaded dynamically** via FastAPI and executed on demand.
 
-✅ **Prebuilt Starter Agents**
-   - **Hello World**: Returns a simple greeting.
-   - **Goodbye**: Returns a farewell message.
+✅ **Organized Swagger UI**
+   - Agents are organized into logical categories in the Swagger UI.
+   - All agents can be viewed at once via the `/agents` endpoint.
 
 ✅ **API Integration**
    - Each agent is accessible via a dedicated API endpoint.
@@ -30,11 +47,18 @@ fastapi-agent-system/
 │   ├─ main.py          # FastAPI application entrypoint
 │   └─ models.py        # (For future use: data models)
 ├─ agents/
-│   ├─ __init__.py      # Package initializer
-│   ├─ hello_world.py   # Hello World agent
-│   ├─ goodbye.py       # Goodbye agent
-│   ├─ classifier.py    # Text classification agent
-│   ├─ summarizer.py    # Text summarization agent
+│   ├─ __init__.py              # Package initializer
+│   ├─ hello_world.py           # Hello World agent
+│   ├─ goodbye.py               # Goodbye agent
+│   ├─ echo.py                  # Echo agent
+│   ├─ time.py                  # Time agent
+│   ├─ joke.py                  # Joke agent
+│   ├─ quote.py                 # Quote agent
+│   ├─ math.py                  # Math agent with validation
+│   ├─ classifier.py            # Text classification agent
+│   ├─ summarizer.py            # Text summarization agent
+│   ├─ textrank_summarizer.py   # TextRank summarization agent
+│   ├─ dspy_integration.py      # DSPy integration utilities
 ├─ docs/                # Documentation for this module
 ├─ plans/               # Step by step instructions for AI code writing
 ├─ logs/                # Logging steps
@@ -73,14 +97,28 @@ Core Endpoints:
 - Health check: GET /health
 - List all agents: GET /agents
 
-Simple Agents (No Parameters):
-- Hello World: GET /agent/hello_world
-- Goodbye: GET /agent/goodbye
+Agent Categories in Swagger UI:
+- **Dspy Agents**: Advanced text processing agents
+  - Classifier: GET /agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?
+  - Summarizer: GET /agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10
+  - TextRank Summarizer: GET /agent/textrank_summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&num_sentences=2
 
-Advanced Agents (With Parameters):
-- Classifier: GET /agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?
-- Summarizer: GET /agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10
-- TextRank Summarizer: GET /agent/textrank_summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10
+- **Simple Agents**: Basic agents without validation
+  - Hello World: GET /agent/hello_world
+  - Goodbye: GET /agent/goodbye
+  - Echo: GET /agent/echo
+  - Time: GET /agent/time
+  - Joke: GET /agent/joke
+  - Quote: GET /agent/quote
+
+- **Agents with Validation**: Agents requiring validation
+  - Math: GET /agent/math?token=MATH_SECRET&expression=3*(4+2)
+
+- **Dynamic Agents**: Dynamically loaded agents
+  - Generic Agent: GET /agent/{agent_name}
+
+- **All Agents**: List all available agents
+  - List Agents: GET /agents
 
 Example Usage:
 ```bash
@@ -89,7 +127,7 @@ curl SERVER_URL/agent/hello_world
 
 # Test with parameters
 curl "SERVER_URL/agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10"
-curl "SERVER_URL/agent/textrank_summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10"
+curl "SERVER_URL/agent/textrank_summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&num_sentences=2"
 ```
 ```
 
