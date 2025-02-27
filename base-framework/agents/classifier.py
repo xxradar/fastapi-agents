@@ -96,27 +96,27 @@ def register_routes(router: APIRouter):
     agent = ClassifierAgent()
 
     @router.get("/classifier", summary="Classifies input text", response_model=Dict[str, Any], tags=["Dspy Agents"])
-    async def classifier_route(INPUT_TEXT: Optional[str] = Query(None, description="The text to be classified")):
+    async def classifier_route(INPUT_TEXT: Optional[str] = Query(None, description="The text to be classified.  Example: Hello, how are you?")):
         """
         Classifies the input text.
 
         **Input:**
 
-        *   **INPUT_TEXT (optional, string):** The text to be classified.
+        *   **INPUT_TEXT (optional, string):** The text to be classified. Example Hello, how are you?
 
         **Process:** An instance of the `ClassifierAgent` is used. The `classify`
         method is called with the `INPUT_TEXT`.
 
         **Example Input (query parameter):**
 
-        `?INPUT_TEXT=This is a positive statement.`
+        `?INPUT_TEXT=Hello, how are you?`
 
         **Example Output:**
 
         ```json
         {
-          "classification": "Statement",
-          "confidence": 0.0
+          "classification": "Greeting/Question",
+          "confidence": 0.67
         }
         ```
         **Example Output (if no input is provided):**
