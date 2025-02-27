@@ -68,8 +68,11 @@ def register_routes(router: APIRouter):
         
         ```json
         {
-          "quote": "Believe in yourself and all that you are."
+          "agent": "quote",
+          "result": {
+            "quote": "Believe in yourself and all that you are."
+          }
         }
         ```
         """
-        return agent.get_quote()
+        return {"agent": "quote", "result": agent.get_quote()}

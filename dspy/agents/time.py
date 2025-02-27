@@ -1,7 +1,7 @@
 # agents/time.py
 from typing import Dict, Any
 from fastapi import APIRouter
-from datetime import datetime
+from datetime import datetime, UTC 
 
 class TimeAgent:
     """
@@ -12,7 +12,7 @@ class TimeAgent:
     
     def get_time(self) -> Dict[str, str]:
         """Returns the current time in ISO 8601 format."""
-        current_time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        current_time = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
         return {"time": current_time}
     
 # Keep the original function for backward compatibility
@@ -39,8 +39,11 @@ def register_routes(router: APIRouter):
         
         ```json
         {
-          "time": "2025-02-23T20:00:00Z"
+          "agent": "time",
+          "result": {
+            "time": "2025-02-23T20:00:00Z"
+          }
         }
         ```
         """
-        return agent.get_time()
+        return {"agent": "time", "result": agent.get_time()}

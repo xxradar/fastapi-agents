@@ -68,8 +68,11 @@ def register_routes(router: APIRouter):
         
         ```json
         {
-          "joke": "Why do programmers prefer dark mode? Because light attracts bugs!"
+          "agent": "joke",
+          "result": {
+            "joke": "Why do programmers prefer dark mode? Because light attracts bugs!"
+          }
         }
         ```
         """
-        return agent.get_joke()
+        return {"agent": "joke", "result": agent.get_joke()}

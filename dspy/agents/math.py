@@ -55,8 +55,8 @@ class MathAgent:
                 """Recursively evaluate an AST node"""
                 if isinstance(node, ast.Expression):
                     return eval_node(node.body)
-                elif isinstance(node, ast.Num):
-                    return node.n
+                elif isinstance(node, ast.Constant):
+                    return node.value
                 elif isinstance(node, ast.BinOp):
                     # Only allow supported arithmetic operations
                     if type(node.op) not in OPERATORS:
@@ -126,8 +126,8 @@ def register_routes(router: APIRouter):
     
     @router.get("/math", summary="Evaluates a math expression after verifying a token", tags=["Agents with Validation"])
     async def math_route(
-        token: str = Query(..., description="Authorization token (must be 'MATH_SECRET')"),
-        expression: str = Query(..., description="Mathematical expression to evaluate")
+        token: str = Query(None, description="Authorization token (must be 'MATH_SECRET')"),
+        expression: str = Query(None, description="Mathematical expression to evaluate")
     ):
         """
         Evaluates a mathematical expression after token verification.
@@ -151,9 +151,7 @@ def register_routes(router: APIRouter):
         ```json
         {
           "agent": "math",
-          "result": {
-            "result": 18
-          }
+          "result": 18
         }
         ```
         
@@ -162,11 +160,12 @@ def register_routes(router: APIRouter):
         ```json
         {
           "agent": "math",
-          "result": {
-            "error": "Invalid token. Access denied."
-          }
+          "result": "Error: Invalid token. Access denied."
         }
         ```
         """
         result = agent.evaluate(token, expression)
-        return {"agent": "math", "result": result}
+        if "error" in result:
+            return {"agent": "math", "result": "Error: " + result["error"]}
+        else:
+            return {"agent": "math", "result": result["result"]}

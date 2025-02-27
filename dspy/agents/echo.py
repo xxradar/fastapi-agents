@@ -38,8 +38,11 @@ def register_routes(router: APIRouter):
         
         ```json
         {
-          "message": "Echo from agent!"
+          "agent": "echo",
+          "result": {
+            "message": "Echo from agent!"
+          }
         }
         ```
         """
-        return agent.get_echo()
+        return {"agent": "echo", "result": agent.get_echo()}

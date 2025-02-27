@@ -34,16 +34,6 @@ def test_invalid_agent():
     response = client.get("/agent/invalid")
     assert response.status_code == 404
 
-# def test_classifier_agent():
-#     """Test classifier agent"""
-#     response = client.get("/agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?")
-#     assert response.status_code == 200
-#     result = response.json()
-#     assert "agent" in result and result["agent"] == "classifier"
-#     assert "result" in result and "classification" in result["result"] and "confidence" in result["result"]
-#     assert result["result"]["classification"] in ["Greeting", "Question", "Command", "Statement"]
-#     assert isinstance(result["result"]["confidence"], float)
-
 def test_classifier_agent_with_input():
     """Test classifier agent with input text."""
     response = client.get("/agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?")
