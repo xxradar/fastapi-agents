@@ -110,3 +110,52 @@ def test_summarizer_agent_no_input():
     result = response.json()
     assert "error" in result
     assert result["error"] == "TEXT_TO_SUMMARIZE is not provided or is not a valid string."
+    
+# Add to existing tests in tests/test_agents.py
+def test_textrank_summarizer_agent_with_input():
+    """Test TextRank summarizer agent with input text."""
+    long_text = (
+        "This is the first sentence. This is the second sentence, and it's a bit longer. "
+        "Here is a third sentence.  And finally, a fourth sentence."
+    )
+    response = client.get(f"/agent/textrank_summarizer?TEXT_TO_SUMMARIZE={long_text}")
+    assert response.status_code == 200
+    result = response.json()
+    assert result["agent"] == "textrank_summarizer"
+    assert "summary" in result["result"]
+    # Basic check: summary is shorter than original
+    assert len(result["result"]["summary"]) < len(long_text)
+
+    # Test num_sentences parameter
+    response = client.get(f"/agent/textrank_summarizer?TEXT_TO_SUMMARIZE={long_text}&num_sentences=1")
+    assert response.status_code == 200
+    result = response.json()
+    assert len(result["result"]["summary"].split('.')) <= 2
+
+def test_textrank_summarizer_agent_no_input():
+    """Test TextRank summarizer with no input."""
+    response = client.get("/agent/textrank_summarizer")
+    assert response.status_code == 200
+    result = response.json()
+    assert result == {
+        "agent": "textrank_summarizer",
+        "result": {"error": "TEXT_TO_SUMMARIZE is not provided or is not a valid string."}
+    }
+def test_textrank_summarizer_short_input():
+    """Test Textrank summarizer with short input."""
+    response = client.get(f"/agent/textrank_summarizer?TEXT_TO_SUMMARIZE=short+text")
+    assert response.status_code == 200, result
+    result = response.json()
+    assert result["agent"] == "textrank_summarizer"
+    assert "summary" in result["result"]
+    assert result["result"]["summary"] == "short text"
+
+def test_textrank_summarizer_empty_input():
+    """Test TextRank summarizer with empty input"""
+    response = client.get(f"/agent/textrank_summarizer?TEXT_TO_SUMMARIZE=")
+    assert response.status_code == 200
+    result = response.json()
+    assert result == {  # Check for the exact error response structure
+        "agent": "textrank_summarizer",
+        "result": {"error": "TEXT_TO_SUMMARIZE is not provided or is not a valid string."}
+    }

@@ -80,6 +80,7 @@ Simple Agents (No Parameters):
 Advanced Agents (With Parameters):
 - Classifier: GET /agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?
 - Summarizer: GET /agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10
+- TextRank Summarizer: GET /agent/textrank_summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10
 
 Example Usage:
 ```bash
@@ -88,6 +89,8 @@ curl SERVER_URL/agent/hello_world
 
 # Test with parameters
 curl "SERVER_URL/agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10"
+curl "SERVER_URL/agent/textrank_summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10"
+```
 ```
 
 ## Running Tests

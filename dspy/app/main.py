@@ -5,32 +5,34 @@ from typing import Optional, List, Dict, Any
 import os
 from agents.dspy_integration import load_agent, run_agent
 from agents.classifier import register_routes as register_classifier_routes
-from agents.summarizer import register_routes as register_summarizer_routes  
-
+from agents.summarizer import register_routes as register_summarizer_routes
+from agents.textrank_summarizer import register_routes as register_textrank_summarizer_routes  # NEW
 
 app = FastAPI(title="FastAPI Agent System")
 
 # --- Agent Information ---
 AGENTS_INFO: List[Dict[str, str]] = [
-    {"name": "hello_world", "description": "Returns a simple hello world message.", "instructions": "Call /agent/hello_world with no additional parameters."},
-    {"name": "goodbye", "description": "Returns a goodbye message.", "instructions": "Call /agent/goodbye with no additional parameters."},
-    {"name": "classifier", "description": "Classifies input text using advanced rule-based logic.", "instructions": "Call /agent/classifier with INPUT_TEXT parameter."},
-    {"name": "summarizer", "description": "Summarizes a block of text.", "instructions": "Call /agent/summarizer with TEXT_TO_SUMMARIZE parameter."},
+    {"name": "hello_world", "description": "Returns a simple hello world message."},
+    {"name": "goodbye", "description": "Returns a goodbye message."},
+    {"name": "classifier", "description": "Classifies input text using rule-based logic."},
+    {"name": "summarizer", "description": "Summarizes a block of text (truncation)."},
+    {"name": "textrank_summarizer", "description": "Summarizes text using TextRank algorithm."}, # NEW
 ]
 
 @app.get("/agents")
 async def list_all_agents() -> Dict[str, List[Dict[str, str]]]:
-    """Returns a list of all available agents with brief descriptions and instructions."""
     return {"agents": AGENTS_INFO}
 
 # --- Agent Router ---
 agent_router = APIRouter(prefix="/agent")
 register_classifier_routes(agent_router)
-register_summarizer_routes(agent_router)  # Register summarizer routes
+register_summarizer_routes(agent_router)
+register_textrank_summarizer_routes(agent_router)  # NEW: Register the TextRank routes
 app.include_router(agent_router)
 
 
-# --- Other Routes ---
+# --- Other Routes (hello_world, goodbye, generic) ---
+# Keep hello_world and goodbye as before.  The generic route is also important.
 
 @app.get("/agent/hello_world")
 async def hello_world_agent():
@@ -46,7 +48,6 @@ async def goodbye_agent():
     output = run_agent(agent_module)
     return {"agent": "goodbye", "result": output}
 
-# NO summarizer route defined here. It's handled by the agent router.
 
 @app.get("/agent/{agent_name}")  # Keep the generic route handler
 async def execute_agent(agent_name: str, request: Request):
@@ -70,6 +71,7 @@ async def execute_agent(agent_name: str, request: Request):
         return {"agent": agent_name, "result": output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error executing agent: {str(e)}")
+
 
 
 @app.get("/favicon.ico")
