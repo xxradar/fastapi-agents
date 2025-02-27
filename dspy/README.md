@@ -1,26 +1,29 @@
-# FastAPI Agent System
+# DSPy Agents
 
-cd into a module (folder)
-- each folder is a standalone module with its own endpoints, routes, tests, and documentation
+This module contains agents that leverage **DSPy** for advanced text processing tasks, including classification and summarization. It also includes foundational agents (`hello_world` and `goodbye`) for demonstration purposes.
 
-how to run:  use the -m flag 
-1. cd into your folder e.g. cd starter
-2. python -m uvicorn app.main:app --reload
-3. run tests python -m pytest tests
-
-A FastAPI-based dynamic agent system that leverages the ReACT methodology for building autonomous and human-in-the-loop agents.
+---
 
 ## Features
-- Dynamic agent loading and execution
-- Multiple agent support with dedicated endpoints
-- Agent listing and discovery endpoint
-- Health check endpoint
-- Error handling
-- Comprehensive test suite
-- Token-based authorization (for math agent)
-- Advanced text processing (classifier and summarizer agents)
+
+✅ **Advanced Text Processing with DSPy**
+   - **Classifier Agent**: Uses advanced rule-based logic for text classification.
+   - **Summarizer Agent**: Processes and summarizes long-form text.
+
+✅ **Dynamic Agent Execution**
+   - **Agents are loaded dynamically** via FastAPI and executed on demand.
+
+✅ **Prebuilt Starter Agents**
+   - **Hello World**: Returns a simple greeting.
+   - **Goodbye**: Returns a farewell message.
+
+✅ **API Integration**
+   - Each agent is accessible via a dedicated API endpoint.
+
+---
 
 ## Project Structure
+
 ```
 fastapi-agent-system/
 ├─ app/
@@ -30,14 +33,11 @@ fastapi-agent-system/
 │   ├─ __init__.py      # Package initializer
 │   ├─ hello_world.py   # Hello World agent
 │   ├─ goodbye.py       # Goodbye agent
-│   ├─ math.py          # Math agent with token verification
 │   ├─ classifier.py    # Text classification agent
 │   ├─ summarizer.py    # Text summarization agent
-│   ├─ echo.py          # Echo message agent
-│   ├─ time.py          # Current time agent
-│   ├─ joke.py          # Random joke agent
-│   └─ quote.py         # Inspirational quote agent
-├─ docs/                # Documentation
+├─ docs/                # Documentation for this module
+├─ plans/               # Step by step instructions for AI code writing
+├─ logs/                # Logging steps
 ├─ tests/               # Test suite
 ├─ requirements.txt     # Dependencies
 └─ LICENSE             # MIT License
@@ -51,8 +51,19 @@ pip install -r requirements.txt
 ```
 
 2. Run the server:
+
+For standalone modules:
 ```bash
 uvicorn app.main:app --reload
+```
+
+For running within the mono repo:
+```bash
+# First, navigate to the specific module directory
+cd dspy
+
+# Then run the server using the Python -m flag
+python -m uvicorn app.main:app --reload
 ```
 
 3. Test the endpoints:
@@ -65,62 +76,62 @@ Core Endpoints:
 Simple Agents (No Parameters):
 - Hello World: GET /agent/hello_world
 - Goodbye: GET /agent/goodbye
-- Echo: GET /agent/echo
-- Time: GET /agent/time
-- Joke: GET /agent/joke
-- Quote: GET /agent/quote
 
 Advanced Agents (With Parameters):
-- Math: GET /agent/math?token=MATH_SECRET&expression=3*(4%2B2)
 - Classifier: GET /agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?
-- Summarizer: GET /agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient.
+- Summarizer: GET /agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10
 
 Example Usage:
 ```bash
-# Start the server
-uvicorn app.main:app --reload
-
 # Test an endpoint (replace SERVER_URL with your server address)
 curl SERVER_URL/agent/hello_world
 
 # Test with parameters
-curl "SERVER_URL/agent/math?token=MATH_SECRET&expression=3*(4%2B2)"
+curl "SERVER_URL/agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20efficient&max_length=10"
 ```
 
 ## Running Tests
+
+For standalone modules:
 ```bash
 pytest tests/
 ```
 
-## Documentation
-- [Implementation Guide](docs/Implementation_Guide.md)
-- [Testing Documentation](docs/Testing_and_Validation.md)
-- [Technical Specifications](docs/Technical_Specifications.md)
+For running within the mono repo:
+```bash
+# First, navigate to the specific module directory
+cd dspy
 
+# Then run the tests using the Python -m flag
+python -m pytest tests
+```
+
+## Documentation
+- /docs main documentation for this module
+- /plans step by step instructions
+- /logs updates
 
 ## This repository was created using Documentation First Coding Methodologies
 
 Our development process followed a rigorous Documentation First approach:
 
-1. **Brainstorm and Design:**  
+1. **Brainstorm and Design:**
    Initial ideas and designs were discussed and documented to establish project goals.
 
-2. **Required Documentation:**  
+2. **Required Documentation:**
    All technical and implementation documents were created and saved in the `/docs` directory.
 
-3. **Phase Plans:**  
+3. **Phase Plans:**
    Detailed plans for each development phase were created and are available in the `/plans` folder.
 
-4. **Step-by-Step Execution:**  
+4. **Step-by-Step Execution:**
    Development followed the step-by-step outlines provided in each phase, including comprehensive tests.
 
-5. **Tracking and Logging:**  
+5. **Tracking and Logging:**
    Every step of the process was tracked and logged in the `/logs` directory for transparency.
 
-6. **Testing and Updates:**  
+6. **Testing and Updates:**
    Appropriate tests were implemented and documentation was continuously updated to reflect the current state of the project.
-
-
 
 ## Original Gist
 https://gist.github.com/bar181/7fc0286841a38c72848ed037d0e561fd

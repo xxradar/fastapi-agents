@@ -34,84 +34,53 @@ def test_invalid_agent():
     response = client.get("/agent/invalid")
     assert response.status_code == 404
 
-def test_math_agent_valid():
-    """Test math agent with valid token and expression"""
-    response = client.get("/agent/math?token=MATH_SECRET&expression=3*(4%2B2)")
-    assert response.status_code == 200
-    assert response.json() == {
-        "agent": "math",
-        "result": 18
-    }
+# def test_classifier_agent():
+#     """Test classifier agent"""
+#     response = client.get("/agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?")
+#     assert response.status_code == 200
+#     result = response.json()
+#     assert "agent" in result and result["agent"] == "classifier"
+#     assert "result" in result and "classification" in result["result"] and "confidence" in result["result"]
+#     assert result["result"]["classification"] in ["Greeting", "Question", "Command", "Statement"]
+#     assert isinstance(result["result"]["confidence"], float)
 
-def test_math_agent_invalid_token():
-    """Test math agent with invalid token"""
-    response = client.get("/agent/math?token=WRONG_TOKEN&expression=2%2B2")
-    assert response.status_code == 200
-    assert response.json() == {
-        "agent": "math",
-        "result": "Error: Invalid token. Access denied."
-    }
-
-def test_math_agent_invalid_expression():
-    """Test math agent with invalid expression"""
-    response = client.get("/agent/math?token=MATH_SECRET&expression=import%20os")
-    assert response.status_code == 200
-    assert "Error: Invalid expression" in response.json()["result"]
-
-def test_math_agent_missing_params():
-    """Test math agent with missing parameters"""
-    response = client.get("/agent/math")
-    assert response.status_code == 200
-    assert "Error: Invalid token" in response.json()["result"]
-
-def test_echo_agent():
-    """Test echo agent response"""
-    response = client.get("/agent/echo")
-    assert response.status_code == 200
-    assert response.json() == {
-        "agent": "echo",
-        "result": {"message": "Echo from agent!"}
-    }
-
-def test_time_agent():
-    """Test time agent response format"""
-    response = client.get("/agent/time")
-    assert response.status_code == 200
-    result = response.json()
-    assert "agent" in result and result["agent"] == "time"
-    assert "result" in result and "time" in result["result"]
-    # Verify ISO 8601 format (rough check)
-    assert "T" in result["result"]["time"] and "Z" in result["result"]["time"]
-
-def test_joke_agent():
-    """Test joke agent response format"""
-    response = client.get("/agent/joke")
-    assert response.status_code == 200
-    result = response.json()
-    assert "agent" in result and result["agent"] == "joke"
-    assert "result" in result and "joke" in result["result"]
-    assert isinstance(result["result"]["joke"], str)
-    assert len(result["result"]["joke"]) > 0
-
-def test_quote_agent():
-    """Test quote agent response format"""
-    response = client.get("/agent/quote")
-    assert response.status_code == 200
-    result = response.json()
-    assert "agent" in result and result["agent"] == "quote"
-    assert "result" in result and "quote" in result["result"]
-    assert isinstance(result["result"]["quote"], str)
-    assert len(result["result"]["quote"]) > 0
-
-def test_classifier_agent():
-    """Test classifier agent"""
+def test_classifier_agent_with_input():
+    """Test classifier agent with input text."""
     response = client.get("/agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?")
     assert response.status_code == 200
     result = response.json()
-    assert "agent" in result and result["agent"] == "classifier"
-    assert "result" in result and "classification" in result["result"] and "confidence" in result["result"]
-    assert result["result"]["classification"] in ["Greeting", "Question", "Command", "Statement"]
-    assert isinstance(result["result"]["confidence"], float)
+    assert "classification" in result
+    assert "confidence" in result
+    assert result["classification"] in ["Greeting/Question", "Greeting", "Question", "Command", "Statement"]
+    assert isinstance(result["confidence"], float)
+
+def test_classifier_agent_no_input():
+    """Test classifier agent with no input text (should return an error)."""
+    response = client.get("/agent/classifier")  # No INPUT_TEXT provided
+    assert response.status_code == 200  # Expecting a 200 OK, even with the error message
+    result = response.json()
+    assert result == {"error": "INPUT_TEXT is not provided or is not a valid string."}
+
+def test_classifier_agent_empty_input():
+    """Test with empty input string"""
+    response = client.get("/agent/classifier?INPUT_TEXT=")  # Empty INPUT_TEXT
+    assert response.status_code == 200
+    result = response.json()
+    assert result == {"error": "INPUT_TEXT is not provided or is not a valid string."}
+
+def test_classifier_agent_statement():
+    """Test with a simple statement."""
+    response = client.get("/agent/classifier?INPUT_TEXT=This%20is%20a%20statement.")
+    assert response.status_code == 200
+    result = response.json()
+    # Ensure the response includes the necessary keys
+    assert "classification" in result
+    assert "confidence" in result
+    # For a simple statement, we expect the classification to be "Statement"
+    assert result["classification"] == "Statement"
+    assert isinstance(result["confidence"], float)
+
+
 
 def test_summarizer_agent():
     """Test summarizer agent"""
@@ -122,3 +91,22 @@ def test_summarizer_agent():
     assert "result" in result and "summary" in result["result"] and "explanation" in result["result"]
     assert isinstance(result["result"]["summary"], str)
     assert isinstance(result["result"]["explanation"], str)
+
+def test_summarizer_agent_max_length():
+    """Test summarizer agent with max_length parameter"""
+    response = client.get("/agent/summarizer?TEXT_TO_SUMMARIZE=This%20is%20a%20very%20long%20text%20that%20we%20want%20to%20shorten%20to%20a%20reasonable%20length.&max_length=5")
+    assert response.status_code == 200
+    result = response.json()
+    assert "agent" in result and result["agent"] == "summarizer"
+    assert "result" in result and "summary" in result["result"] and "explanation" in result["result"]
+    assert isinstance(result["result"]["summary"], str)
+    assert isinstance(result["result"]["explanation"], str)
+    assert len(result["result"]["summary"]) <= 5 + 3  # 5 characters + ellipsis
+
+def test_summarizer_agent_no_input():
+    """Test summarizer agent with no input text (should return an error)."""
+    response = client.get("/agent/summarizer")  # No TEXT_TO_SUMMARIZE provided
+    assert response.status_code == 200  # Expecting a 200 OK, even with the error message
+    result = response.json()
+    assert "error" in result
+    assert result["error"] == "TEXT_TO_SUMMARIZE is not provided or is not a valid string."

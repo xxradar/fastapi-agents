@@ -61,3 +61,12 @@ The system is now ready for deployment and open-source contribution.
 - Step 2: Update Documentation (Completed)
 - Step 3: Update README and License (Completed)
 - Step 4: Final Review and Commit (Completed)
+
+## Step 5: Update Summarizer Agent (Completed)
+- Updated the summarizer agent to include an option int input for the max size with a default value of 10.
+- Modified the `summarizer_route` function to accept an optional `max_length` parameter with a default value of 10.
+- Passed the `max_length` parameter to the `SummarizerAgent` when creating an instance of the class.
+- Updated the `SummarizerAgent` class to use the `max_length` parameter when summarizing the text.
+- Created 2 new tests for the summarizer:
+  - Test the `max_length` parameter.
+  - Test with no input text.
