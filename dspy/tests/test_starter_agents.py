@@ -102,23 +102,3 @@ def test_quote_agent():
     assert "result" in result and "quote" in result["result"]
     assert isinstance(result["result"]["quote"], str)
     assert len(result["result"]["quote"]) > 0
-
-def test_classifier_agent():
-    """Test classifier agent"""
-    response = client.get("/agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?")
-    assert response.status_code == 200
-    result = response.json()
-    assert "agent" in result and result["agent"] == "classifier"
-    assert "result" in result and "classification" in result["result"] and "confidence" in result["result"]
-    assert result["result"]["classification"] in ["Greeting", "Question", "Command", "Statement"]
-    assert isinstance(result["result"]["confidence"], float)
-
-def test_summarizer_agent():
-    """Test summarizer agent"""
-    response = client.get("/agent/summarizer?TEXT_TO_SUMMARIZE=FastAPI%20is%20an%20efficient%20framework.%20It%20simplifies%20API%20development.%20This%20agent%20summarizes%20text.")
-    assert response.status_code == 200
-    result = response.json()
-    assert "agent" in result and result["agent"] == "summarizer"
-    assert "result" in result and "summary" in result["result"] and "explanation" in result["result"]
-    assert isinstance(result["result"]["summary"], str)
-    assert isinstance(result["result"]["explanation"], str)

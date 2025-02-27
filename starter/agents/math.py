@@ -43,8 +43,8 @@ def safe_eval(expr):
             """Recursively evaluate an AST node"""
             if isinstance(node, ast.Expression):
                 return eval_node(node.body)
-            elif isinstance(node, ast.Num):
-                return node.n
+            elif isinstance(node, ast.Constant):
+                return node.value
             elif isinstance(node, ast.BinOp):
                 # Only allow supported arithmetic operations
                 if type(node.op) not in OPERATORS:

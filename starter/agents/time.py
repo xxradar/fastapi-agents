@@ -1,5 +1,5 @@
 # agents/time.py
-from datetime import datetime
+from datetime import datetime, UTC 
 
 def agent_main():
     """
@@ -13,5 +13,5 @@ def agent_main():
         result = time.agent_main()
         print(result)  # Example output: {'time': '2025-02-24T15:44:03Z'}
     """
-    current_time = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    current_time = datetime.now(UTC).strftime("%Y-%m-%dT%H:%M:%SZ")
     return {"time": current_time}
