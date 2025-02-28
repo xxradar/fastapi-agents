@@ -97,32 +97,58 @@ curl -X POST http://localhost:8000/agents/calculator \
 
 **Implementation**:
 ```python
-hypothesis = HYPOTHESIS
-context = {
-    "hypothesis": hypothesis,
-    "iteration": 0,
-    "history": [hypothesis]
-}
-max_iterations = 5
+# Global variable expected to be set externally.
+try:
+    HYPOTHESIS
+except NameError:
+    HYPOTHESIS = None
 
-for i in range(max_iterations):
-    context["iteration"] = i
-    # Update context via MCP
-    updated_context = mcp_adapter.send_context(context)
-    
-    # Check if MCP returned a final answer
-    if "final_answer" in updated_context:
-        return {
-            "result": {
+def agent_main():
+    """
+    Multi-Step Reasoning Agent
+    ---------------------------
+    Purpose: Iteratively refine a hypothesis by sharing and updating context through MCP.
+    """
+    if not HYPOTHESIS:
+        return {"error": "HYPOTHESIS is not set."}
+
+    hypothesis = HYPOTHESIS
+    context = {
+        "hypothesis": hypothesis,
+        "iteration": 0,
+        "history": [hypothesis]
+    }
+    max_iterations = 5
+
+    for i in range(max_iterations):
+        context["iteration"] = i
+        # Update context via MCP
+        try:
+            if 'mcp_adapter' not in globals():
+                # Continue without MCP functionality
+                updated_context = context
+            else:
+                updated_context = mcp_adapter.send_context(context)
+        except Exception as exc:
+            return {"error": f"Failed to update context: {str(exc)}"}
+
+        # Check if MCP returned a final answer
+        if "final_answer" in updated_context:
+            return {
                 "final_answer": updated_context["final_answer"],
-                "context": updated_context["context"]
+                "context": updated_context.get("context", {})
             }
-        }
-    
-    # Otherwise, refine the hypothesis
-    hypothesis += " refined"
-    context["hypothesis"] = hypothesis
-    context["history"].append(hypothesis)
+
+        # Otherwise, refine the hypothesis
+        hypothesis += " refined"
+        context["hypothesis"] = hypothesis
+        context["history"].append(hypothesis)
+
+    # If we reach max iterations without final answer, return partial
+    return {
+        "partial_hypothesis": hypothesis,
+        "context": updated_context.get("context", {})
+    }
 ```
 
 **Usage**:
@@ -176,33 +202,66 @@ curl -X POST http://localhost:8000/agents/workflow_coordinator \
 
 **Implementation**:
 ```python
-# Decide which sub-agents to run based on keywords
-sub_agent_results = {}
-selected_agents = []
-lower_desc = task_description.lower()
+# Global variable expected to be set externally.
+try:
+    TASK_DESCRIPTION
+except NameError:
+    TASK_DESCRIPTION = ""
 
-if "analyze" in lower_desc:
-    sub_agent_results["analysis"] = "Performed comprehensive data analysis"
-    selected_agents.append("analysis")
-# ... more keyword checks ...
+def agent_main():
+    """
+    Workflow Decisioning Agent
+    ---------------------------
+    Purpose:
+      Coordinate and aggregate responses from multiple sub-agents.
+      Uses decision logic based on keywords in the provided task description.
+      Demonstrates MCP state management by logging each step.
+    """
+    if not TASK_DESCRIPTION:
+        return {"error": "TASK_DESCRIPTION is not set."}
+    
+    # Decide which sub-agents to run based on keywords
+    sub_agent_results = {}
+    selected_agents = []
+    steps = []
+    lower_desc = TASK_DESCRIPTION.lower()
 
-# Build the initial workflow context
-context = {
-    "task_description": task_description,
-    "selected_agents": selected_agents,
-    "sub_agent_results": sub_agent_results,
-    "workflow_status": "in_progress",
-    "steps": steps
-}
+    if "analyze" in lower_desc:
+        sub_agent_results["analysis"] = "Performed comprehensive data analysis"
+        selected_agents.append("analysis")
+        steps.append("collect")
+        steps.append("analyze")
+    # ... more keyword checks ...
 
-# Update context via MCP
-context = mcp_adapter.send_context(context)
+    # Build the initial workflow context
+    context = {
+        "task_description": TASK_DESCRIPTION,
+        "selected_agents": selected_agents,
+        "sub_agent_results": sub_agent_results,
+        "workflow_status": "in_progress",
+        "steps": steps
+    }
 
-# Generate final output
-final_output = context.get(
-    "aggregated_result",
-    "Aggregated results: " + ", ".join(sub_agent_results.values())
-)
+    # Update context via MCP
+    try:
+        if 'mcp_adapter' not in globals():
+            # Continue without MCP functionality
+            updated_context = context
+        else:
+            updated_context = mcp_adapter.send_context(context)
+    except Exception as exc:
+        return {"error": f"Failed to update context: {str(exc)}"}
+
+    # Generate final output
+    final_output = updated_context.get(
+        "aggregated_result",
+        "Aggregated results: " + ", ".join(sub_agent_results.values())
+    )
+    
+    return {
+        "result": final_output,
+        "context": updated_context
+    }
 ```
 
 **Usage**:
@@ -250,6 +309,51 @@ curl -X POST http://localhost:8000/agents/your-agent \
   -d '{"context": {"key": "value"}}'
 ```
 
+## Parameter Handling and Global Variables
+
+The MCP integration uses global variables for parameter handling to ensure consistent behavior across different agents. This approach has several advantages:
+
+1. **Consistent Parameter Handling**
+   - All agents follow the same pattern for receiving input parameters
+   - Route handlers set global variables in the agent module before execution
+   - This ensures that parameters are available to all functions in the agent module
+
+2. **Global Variable Pattern**
+   - Define global variables with default values at the top of the agent module:
+   ```python
+   # Global variable expected to be set externally.
+   try:
+       PARAMETER_NAME
+   except NameError:
+       PARAMETER_NAME = default_value
+   ```
+   - Check for the presence of required parameters in the agent_main function:
+   ```python
+   def agent_main():
+       if not PARAMETER_NAME:
+           return {"error": "PARAMETER_NAME is not set."}
+       # Rest of the agent logic
+   ```
+
+3. **Route Handler Pattern**
+   - Route handlers set global variables in the agent module before execution:
+   ```python
+   @router.post("/agents/your_agent")
+   async def your_agent_route(payload: dict):
+       agent_file = os.path.join("agents", "your_agent.py")
+       agent_module = load_agent(agent_file)
+       
+       # Inject the adapter
+       agent_module.mcp_adapter = MCPAdapter()
+       
+       # Set global variables
+       agent_module.PARAMETER_NAME = payload.get("parameter_name", default_value)
+       
+       # Run the agent
+       output = run_agent(agent_module)
+       return {"agent": "your_agent", "result": output}
+   ```
+
 ## Troubleshooting
 
 1. **MCP Not Initialized Warning**
@@ -264,6 +368,11 @@ curl -X POST http://localhost:8000/agents/your-agent \
 3. **Response Structure Mismatches**
    - Ensure agent return structures match expected formats in tests
    - Check for nested vs. flat result structures
+   
+4. **Parameter Handling Issues**
+   - Verify that global variables are properly defined in the agent module
+   - Check that route handlers set the global variables correctly
+   - Ensure that the agent_main function checks for required parameters
 
 ## Next Steps
 
