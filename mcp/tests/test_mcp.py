@@ -32,8 +32,8 @@ def test_mcp_adapter_initialization(mock_env_vars):
 
 def test_mcp_adapter_initialization_missing_env():
     """Test MCPAdapter initialization with missing environment variables."""
-    with pytest.raises(ValueError):
-        MCPAdapter()
+    adapter = MCPAdapter()
+    assert adapter.initialized is None
 
 def test_send_context(mock_env_vars, mock_requests):
     """Test sending context data through MCPAdapter."""
@@ -67,9 +67,12 @@ def test_agent_mcp_integration(mock_env_vars, mock_requests, tmp_path):
     """Test MCP integration in an agent."""
     # Create a temporary test agent
     agent_code = """
+from app.mcp_adapter import MCPAdapter
+
 def agent_main():
     context = {"test": "data"}
-    updated_context = update_context(context)
+    mcp_adapter = MCPAdapter()
+    updated_context = mcp_adapter.send_context(context)
     return {"result": "test", "context": updated_context}
 """
     agent_file = tmp_path / "test_agent.py"
@@ -88,9 +91,12 @@ def test_agent_mcp_integration_no_env(tmp_path):
     """Test agent behavior when MCP is not configured."""
     # Create a temporary test agent
     agent_code = """
+from app.mcp_adapter import MCPAdapter
+
 def agent_main():
     context = {"test": "data"}
-    updated_context = update_context(context)
+    mcp_adapter = MCPAdapter()
+    updated_context = mcp_adapter.send_context(context)
     return {"result": "test", "context": updated_context}
 """
     agent_file = tmp_path / "test_agent.py"
@@ -103,4 +109,4 @@ def agent_main():
     assert "result" in result
     assert "context" in result
     assert result["result"] == "test"
-    assert result["context"] == {}
+    assert result["context"] == {"test": "data"}  # Original context is returned when not initialized

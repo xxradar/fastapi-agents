@@ -1,23 +1,28 @@
-# mcp-llm-agents
-Advanced FastAPI agent system integrating Module Context Protocol (MCP) and LLM calls (Gemini/OpenAI) on a base agent framework. Features intelligent agents with enhanced dspy functionality for dynamic, context-aware responses
+# Fastapi MCP Agents
+
+A FastAPI-based agent system that integrates the Module Context Protocol (MCP) for enhanced context sharing between agents. This project features intelligent agents with advanced DSPy functionality for dynamic, context-aware responses.
 
 ```markdown
-# MCP-LLM Agents
+# Fastapi MCP Agents
 
-A FastAPI-based agent system that extends the base dynamic agent framework with advanced MCP (Module Context Protocol) and LLM (Google/OpenAI) integrations. This project builds on the Repo 1 foundation by adding context-aware, multi-agent workflows and LLM-powered agents.
+A FastAPI-based agent system that implements the Module Context Protocol (MCP) for context sharing and state management between agents. This project showcases multi-step reasoning, workflow coordination, and decisioning capabilities through a set of specialized MCP agents.
 
 ---
 
 ## Features
 
-- Dynamic agent loading and execution
-- Multiple agent support with dedicated endpoints
-- MCP integration for enhanced context sharing
-- LLM-based agents using Google and OpenAI APIs
+- Dynamic agent loading and execution with dedicated endpoints
+- MCP integration for enhanced context sharing and state management
+- Advanced DSPy-powered classifier agent for text categorization
+- Specialized MCP agents for different use cases:
+  - Calculator agent for arithmetic expression evaluation
+  - Multi-step reasoning agent for iterative hypothesis refinement
+  - Workflow coordinator agent for sub-agent orchestration
+  - Workflow decisioning agent for task-based agent selection
+- Interactive Swagger UI documentation with detailed examples
 - Agent listing and discovery endpoint
 - Health check endpoint
-- Comprehensive test suite and error handling
-- Token-based authorization (for math agent) and advanced text processing (classifier and summarizer agents)
+- Comprehensive test suite with mocking and error handling
 
 ---
 
@@ -26,25 +31,45 @@ A FastAPI-based agent system that extends the base dynamic agent framework with 
 ```
 mcp-llm-agents/
 ├─ app/
-│   ├─ main.py           # FastAPI application entrypoint (refactored to use a separate routes file)
-│   └─ routes.py         # Dedicated routes for agent endpoints (direct calls and dynamic loading)
+│   ├─ main.py           # FastAPI application entrypoint
+│   ├─ routes.py         # Dedicated routes for agent endpoints
+│   ├─ mcp_adapter.py    # MCP adapter for context sharing between agents
+│   └─ models.py         # Data models for the API
 ├─ agents/
 │   ├─ __init__.py       # Package initializer
-│   ├─ hello_world.py    # Basic Hello World agent (from Repo 1)
-│   ├─ math.py           # Math agent with token verification
+│   ├─ dspy_integration.py # DSPy integration utilities
+│   ├─ hello_world.py    # Basic Hello World agent
 │   ├─ classifier.py     # Advanced dspy showcase: Classifier agent
-│   ├─ summarizer.py     # Advanced dspy showcase: Summarizer agent
-│   ├─ mcp_agent1.py     # Example MCP agent 1
-│   ├─ mcp_agent2.py     # Example MCP agent 2
-│   ├─ llm_agent1.py     # Example LLM agent 1 (supports GET/POST)
-│   ├─ llm_agent2.py     # Example LLM agent 2 (supports GET/POST)
-│   ├─ echo.py           # Simple Echo agent
+│   ├─ calculator.py     # MCP agent: Evaluates arithmetic expressions
+│   ├─ multi_step_reasoning.py # MCP agent: Iterative hypothesis refinement
+│   ├─ workflow_coordinator.py # MCP agent: Coordinates multiple sub-agents
+│   ├─ workflow_decisioning.py # MCP agent: Makes decisions based on task descriptions
 │   ├─ time.py           # Simple Time agent
-│   ├─ joke.py           # Simple Joke agent
 │   └─ quote.py          # Simple Quote agent
 ├─ docs/                # Documentation files
+│   ├─ Implementation_Guide.md # Setup and usage instructions
+│   ├─ MCP_Integration.md # MCP integration documentation
+│   └─ Technical_Specifications.md # Endpoint and data model details
+├─ logs/                # Development logs
+│   ├─ 1-logs.md        # Initial setup logs
+│   ├─ 2-logs.md        # MCP setup logs
+│   ├─ 3-logs.md        # MCP agents implementation logs
+│   ├─ 4-mcp-transfer.md # MCP transfer logs
+│   ├─ 5-step2.md       # MCP integration step 2 logs
+│   ├─ 6-swagger.md     # Swagger UI documentation logs
+│   └─ 7-other-tests.md # Test updates logs
 ├─ plans/               # Detailed plans for each development phase
+│   ├─ 1-frameworks.md  # Framework setup plan
+│   ├─ 2-mcp-setup.md   # MCP setup plan
+│   └─ 3-mcp-agents.md  # MCP agents implementation plan
 ├─ tests/               # Test suite
+│   ├─ test_dspy_agents.py # Tests for DSPy agents
+│   ├─ test_main.py     # Tests for core application endpoints
+│   ├─ test_mcp.py      # Tests for MCP adapter
+│   ├─ test_mcp_agents.py # Tests for MCP agents
+│   └─ test_starter_agents.py # Tests for starter agents
+├─ static/              # Static files
+│   └─ favicon.ico      # Favicon
 ├─ requirements.txt     # Dependencies
 └─ LICENSE              # MIT License
 ```
@@ -64,9 +89,16 @@ pip install -r requirements.txt
 Create a `.env` file in the project root with your API keys and configuration (for MCP and LLM integrations):
 
 ```env
+# MCP Configuration
 MCP_API_KEY=your_mcp_api_key
+MCP_ENDPOINT=your_mcp_endpoint_url
 
+# Example:
+# MCP_API_KEY=abc123
+# MCP_ENDPOINT=http://localhost:5000/mcp
 ```
+
+Both `MCP_API_KEY` and `MCP_ENDPOINT` are required for the MCP adapter to function properly. If these environment variables are not set, the MCP adapter will still initialize but will operate in a degraded mode, returning the original context data without sending it to the MCP endpoint.
 
 ### Run the Server
 
@@ -113,13 +145,13 @@ Core Endpoints:
 
 ### Dedicated Agent Endpoints
 
-- **Dynamic Agent Execution:** GET `/agent/{agent_name}`  
+- **Dynamic Agent Execution:** GET `/agent/{agent_name}`
   Loads and executes an agent by its file name.
 
-- **Quote Agent:** GET `/agent/quote`  
+- **Quote Agent:** GET `/agent/quote`
   Returns an inspirational quote.
 
-- **Classifier Agent:** GET `/agent/classifier?INPUT_TEXT=Hello,%20how%20are%20you?`  
+- **Classifier Agent:** GET `/classifier?INPUT_TEXT=Hello,%20how%20are%20you?`
   Classifies input text into categories with a confidence score.
 
 
@@ -153,6 +185,29 @@ The MCP integration enables advanced context sharing and inter-module communicat
 
 For detailed documentation on MCP integration, see `/docs/MCP_Integration.md`.
 
+## Swagger UI Documentation
+
+The API is fully documented using Swagger UI, which provides an interactive interface for exploring and testing the endpoints. The documentation includes:
+
+- Detailed descriptions of each endpoint
+- Request and response schemas
+- Example requests and responses
+- Categorization of endpoints by tags (e.g., "MCP Agents", "Dspy Agents")
+
+To access the Swagger UI documentation:
+
+1. Start the server:
+   ```bash
+   python -m uvicorn app.main:app --reload
+   ```
+
+2. Open your browser and navigate to:
+   ```
+   http://localhost:8000/docs
+   ```
+
+The Swagger UI provides a convenient way to test the endpoints directly from the browser, making it easy to understand and use the API.
+
 ---
 
 ## Running Tests
@@ -160,7 +215,54 @@ For detailed documentation on MCP integration, see `/docs/MCP_Integration.md`.
 Execute the test suite with:
 
 ```bash
-pytest tests/
+# Using the Python -m flag for proper module resolution
+python -m pytest tests/
+```
+
+### Test Suite Overview
+
+The project includes a comprehensive test suite that covers various aspects of the system:
+
+1. **MCP Agent Tests** (`tests/test_mcp_agents.py`):
+   - Tests for all MCP agents (calculator, multi-step reasoning, workflow coordinator, workflow decisioning)
+   - Verifies correct response structures and functionality
+   - Uses mocked MCP adapter for isolated testing
+
+2. **MCP Adapter Tests** (`tests/test_mcp.py`):
+   - Tests for the MCPAdapter class
+   - Verifies initialization with and without environment variables
+   - Tests context sending and response retrieval
+   - Tests agent integration with the MCP adapter
+
+3. **DSPy Agent Tests** (`tests/test_dspy_agents.py`):
+   - Tests for the classifier agent
+   - Verifies correct classification of different types of input
+   - Tests error handling for invalid input
+
+4. **Main Application Tests** (`tests/test_main.py`):
+   - Tests for core application endpoints
+   - Verifies health check and welcome message
+
+5. **Starter Agent Tests** (`tests/test_starter_agents.py`):
+   - Tests for basic starter agents
+
+To run specific test files:
+
+```bash
+# Run only MCP agent tests
+python -m pytest tests/test_mcp_agents.py
+
+# Run only MCP adapter tests
+python -m pytest tests/test_mcp.py
+
+# Run only DSPy agent tests
+python -m pytest tests/test_dspy_agents.py
+```
+
+To run tests with verbose output:
+
+```bash
+python -m pytest tests/ -v
 ```
 
 ---
