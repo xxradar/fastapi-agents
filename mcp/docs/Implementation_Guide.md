@@ -32,8 +32,9 @@ This master guide outlines the major steps to extend the base FastAPI Agent Syst
       ```bash
       pytest tests/
       ```
-4. **Log Testing Results:**  
+4. **Log Testing Results:**
    - After running tests, update the corresponding logs file with a summary of the test results, including any failures or issues and steps taken to resolve them.
+   - For MCP integration issues, refer to `/logs/4-mcp-transfer.md` for detailed troubleshooting steps.
 
 ---
 
