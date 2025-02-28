@@ -1,74 +1,86 @@
-# main.py
-from fastapi import FastAPI, HTTPException, Request, APIRouter
-from fastapi.responses import JSONResponse, Response
-from typing import Optional, List, Dict, Any
 import os
+from fastapi import FastAPI, Request, HTTPException
 from agents.dspy_integration import load_agent, run_agent
-from agents.classifier import register_routes as register_classifier_routes
-from agents.quote import register_routes as register_quote_routes            # NEW
+from app.mcp_adapter import MCPAdapter
+from routes import router as agent_router
 
-app = FastAPI(title="FastAPI Agent System - Basic Framework - github.com/bar181")
-
-# --- Agent Information ---
-AGENTS_INFO: List[Dict[str, str]] = [
-    {"name": "hello_world", "description": "Returns a simple hello world message."},   
-    {"name": "quote", "description": "Returns an inspirational quote."},
-    {"name": "classifier", "description": "Classifies input text using rule-based logic."},
-]
-
-@app.get("/agents", tags=["All Agents"])
-async def list_all_agents() -> Dict[str, List[Dict[str, str]]]:
-    return {"agents": AGENTS_INFO}
-
-# --- Agent Router ---
-agent_router = APIRouter(prefix="/agent")
-register_classifier_routes(agent_router)           # DSPY: Use case for dspy 
-
-register_quote_routes(agent_router)                # Simple: Basic agent
+app = FastAPI(title="MCP-LLM Agents")
 app.include_router(agent_router)
 
-
-# --- Other Routes (hello_world, goodbye, generic) ---
-
-# dymanic agent generation using dspy
-@app.get("/agent/{agent_name}", tags=["Dynamic Agents"]) 
-async def execute_agent(agent_name: str, request: Request):
+@app.get("/agent/{agent_name}")
+async def run_agent_get(agent_name: str, request: Request):
+    """Handle GET requests to /agent/{agent_name}"""
+    # Construct the path to the agent file
     agent_file = os.path.join("agents", f"{agent_name}.py")
     if not os.path.exists(agent_file):
-        raise HTTPException(status_code=404, detail="Agent not found.")
+        raise HTTPException(status_code=404, detail="Agent not found")
 
     try:
+        # Load the agent module
         agent_module = load_agent(agent_file)
 
+        # Initialize and inject MCP Adapter
+        mcp_adapter = MCPAdapter()
+        agent_module.mcp_adapter = mcp_adapter
+
+        # Set global variables from query parameters
         if hasattr(agent_module, 'TOKEN') and 'token' in request.query_params:
             agent_module.TOKEN = request.query_params['token']
-        if hasattr(agent_module, 'EXPRESSION') and 'expression' in request.query_params:
-            agent_module.EXPRESSION = request.query_params['expression']
         if hasattr(agent_module, 'INPUT_TEXT') and 'INPUT_TEXT' in request.query_params:
             agent_module.INPUT_TEXT = request.query_params['INPUT_TEXT']
         if hasattr(agent_module, 'TEXT_TO_SUMMARIZE') and 'TEXT_TO_SUMMARIZE' in request.query_params:
             agent_module.TEXT_TO_SUMMARIZE = request.query_params['TEXT_TO_SUMMARIZE']
 
+        # Run the agent
         output = run_agent(agent_module)
+
+        # Return result
         return {"agent": agent_name, "result": output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error executing agent: {str(e)}")
 
+@app.post("/agents/{agent_name}")
+async def run_agent_post(agent_name: str, request: Request):
+    """
+    Runs an agent using agent_name.
+    Optionally sets EXPRESSION if posted in JSON.
+    """
+    # Construct the path to the agent file
+    agent_file = os.path.join("agents", f"{agent_name}.py")
+    if not os.path.exists(agent_file):
+        raise HTTPException(status_code=404, detail="Agent not found")
 
+    try:
+        # Parse request body
+        data = await request.json()
+        expression = data.get("expression")
 
-@app.get("/favicon.ico")
-async def get_favicon():
-    svg = '''<?xml version="1.0" encoding="UTF-8"?>
-    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-        <rect width="16" height="16" fill="#4a90e2"/>
-        <text x="2" y="12" font-size="10" fill="white">A</text>
-    </svg>'''
-    return Response(content=svg.encode('utf-8'), media_type="image/svg+xml")
+        # Load the agent module
+        agent_module = load_agent(agent_file)
 
-@app.get("/")
-async def read_root():
-    return {"message": "Welcome to the Agent Base Framework! (https://github.com/bar181/fastapi-agents)"}
+        # Initialize and inject MCP Adapter
+        mcp_adapter = MCPAdapter()
+        agent_module.mcp_adapter = mcp_adapter
 
-@app.get("/health")
-async def health_check():
-    return JSONResponse({"status": "ok", "message": "Healthy"})
+        # Set global variables from request body
+        if expression and hasattr(agent_module, 'EXPRESSION'):
+            agent_module.EXPRESSION = expression
+        if 'hypothesis' in data and hasattr(agent_module, 'HYPOTHESIS'):
+            agent_module.HYPOTHESIS = data['hypothesis']
+
+        # Run the agent
+        output = run_agent(agent_module)
+
+        # Return result
+        if "error" in output:
+            # You may choose to return a 200 with the error object, 
+            # or raise an exception:
+            return {"agent": agent_name, "result": output}
+
+        return {
+            "agent": agent_name,
+            "result": output["result"],
+            "context": output.get("context", {})
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error executing agent: {str(e)}")
