@@ -3,3 +3,4 @@ uvicorn
 python-dotenv
 pytest
 httpx
+security==1.3.1

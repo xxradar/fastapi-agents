@@ -1,5 +1,6 @@
 import requests
 import os
+from security import safe_requests
 
 class MCPAdapter:
     def __init__(self):
@@ -39,7 +40,7 @@ class MCPAdapter:
         url = f"{self.endpoint}/response"
         headers = {"Authorization": f"Bearer {self.api_key}"}
         try:
-            response = requests.get(url, headers=headers)
+            response = safe_requests.get(url, headers=headers)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
