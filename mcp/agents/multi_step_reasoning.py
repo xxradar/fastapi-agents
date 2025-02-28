@@ -49,10 +49,8 @@ def agent_main():
         if "final_answer" in updated_context:
             logging.debug("Final answer received from MCP")
             return {
-                "result": {
-                    "final_answer": updated_context["final_answer"],
-                    "context": updated_context["context"]
-                }
+                "final_answer": updated_context["final_answer"],
+                "context": updated_context.get("context", {})
             }
 
         # Otherwise, refine the hypothesis
@@ -64,8 +62,6 @@ def agent_main():
     # If we reach max iterations without final answer, return partial
     logging.debug("Maximum iterations reached")
     return {
-        "result": {
-            "partial_hypothesis": hypothesis,
-            "context": updated_context.get("context", {})
-        }
+        "partial_hypothesis": hypothesis,
+        "context": updated_context.get("context", {})
     }

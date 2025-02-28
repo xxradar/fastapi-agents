@@ -3,6 +3,11 @@ import datetime
 
 logging.basicConfig(level=logging.DEBUG)
 
+# Global variable expected to be set externally.
+try:
+    TASK_DESCRIPTION
+except NameError:
+    TASK_DESCRIPTION = ""
 
 class DummyMCPAdapter:
     """Dummy adapter to simulate MCP state management."""
@@ -24,7 +29,7 @@ class DummyMCPAdapter:
         return context
 
 
-def agent_main(task_description=""):
+def agent_main():
     """
     Workflow Decisioning Agent
     ---------------------------
@@ -35,7 +40,8 @@ def agent_main(task_description=""):
 
     Usage:
       from agents import workflow_decisioning
-      result = workflow_decisioning.agent_main("Please analyze and report the data")
+      workflow_decisioning.TASK_DESCRIPTION = "Please analyze and report the data"
+      result = workflow_decisioning.agent_main()
       # Expected output: {
       #    'result': <final aggregated output with detailed steps>,
       #    'context': <updated context including MCP state>
@@ -44,13 +50,13 @@ def agent_main(task_description=""):
     logging.debug("Workflow Decisioning agent started.")
 
     # Step 1: Log and record the task description.
-    logging.debug("Received task description: %s", task_description)
-    steps = [f"Step 1: Received task '{task_description}'."]
+    logging.debug("Received task description: %s", TASK_DESCRIPTION)
+    steps = [f"Step 1: Received task '{TASK_DESCRIPTION}'."]
     
     # Step 2: Decide which sub-agents to run based on keywords.
     sub_agent_results = {}
     selected_agents = []
-    lower_desc = task_description.lower()
+    lower_desc = TASK_DESCRIPTION.lower()
 
     if "analyze" in lower_desc:
         sub_agent_results["analysis"] = "Performed comprehensive data analysis"
@@ -71,7 +77,7 @@ def agent_main(task_description=""):
 
     # Step 3: Build the initial workflow context.
     context = {
-        "task_description": task_description,
+        "task_description": TASK_DESCRIPTION,
         "selected_agents": selected_agents,
         "sub_agent_results": sub_agent_results,
         "workflow_status": "in_progress",
@@ -107,5 +113,6 @@ def agent_main(task_description=""):
 if __name__ == "__main__":
     # Example execution with a sample task description.
     sample_task = "Please analyze and report the data"
-    output = agent_main(sample_task)
+    TASK_DESCRIPTION = sample_task
+    output = agent_main()
     print(output)

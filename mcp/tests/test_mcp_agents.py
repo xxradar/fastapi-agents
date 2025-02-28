@@ -84,7 +84,9 @@ def test_workflow_coordinator_agent():
         result = response.json()
         assert result["agent"] == "workflow_coordinator"
         assert "result" in result
-        assert result["result"] == "Aggregated results from all sub-agents"
+        assert "result" in result["result"]
+        assert result["result"]["result"] == "Aggregated results from all sub-agents"
+        assert "context" in result["result"]
 
 def test_workflow_decisioning_agent():
     """Test the workflow decisioning agent."""

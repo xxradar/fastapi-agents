@@ -125,8 +125,11 @@ async def workflow_decisioning_agent_route(payload: dict):
     # Inject the adapter so code references the same place that tests can patch
     agent_module.mcp_adapter = MCPAdapter()
 
-    task_description = payload.get("task_description", "")
-    output = run_agent(agent_module, task_description=task_description)
+    # Set the task_description as a global variable
+    agent_module.TASK_DESCRIPTION = payload.get("task_description", "")
+    
+    # Run the agent without passing task_description as a parameter
+    output = run_agent(agent_module)
     return {"agent": "workflow_decisioning", "result": output}
 
 @router.post("/agents/workflow_coordinator")
@@ -142,38 +145,6 @@ async def workflow_coordinator_agent_route(payload: dict):
 
     output = run_agent(agent_module)
     return {"agent": "workflow_coordinator", "result": output}
-
-@router.post("/agents/workflow_decisioning")
-async def workflow_decisioning_agent_route(payload: dict):
-    """
-    Coordinates and aggregates responses from multiple sub-agents using MCP for shared context.
-    """
-    # Locate and load the workflow_decisioning agent module.
-    agent_file = os.path.join("agents", "workflow_decisioning.py")
-    agent_module = load_agent(agent_file)
-
-    # Inject the adapter so that the same adapter instance is used (and can be patched by tests).
-    agent_module.mcp_adapter = MCPAdapter()
-
-    # Run the agent.
-    output = run_agent(agent_module)
-    return {"agent": "workflow_decisioning", "result": output}
-
-
-@router.post("/agents/multi_step_reasoning")
-async def multi_step_reasoning_route(payload: dict):
-    """
-    Multi-step reasoning agent at /agents/multi_step_reasoning
-    """
-    agent_file = os.path.join("agents", "multi_step_reasoning.py")
-    agent_module = load_agent(agent_file)
-
-    # Inject MCPAdapter
-    agent_module.mcp_adapter = MCPAdapter()
-
-    agent_module.HYPOTHESIS = payload.get("hypothesis")
-    result = run_agent(agent_module)
-    return {"agent": "multi_step_reasoning", "result": result}
 
 @router.post("/dynamic-agents/{agent_name}")
 async def execute_dynamic_agent(agent_name: str, payload: dict):
