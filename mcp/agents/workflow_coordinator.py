@@ -1,6 +1,8 @@
 # agents/workflow_coordinator.py
 
 import logging
+from typing import Optional, Dict, Any
+from fastapi import APIRouter, Body
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -51,3 +53,52 @@ def agent_main():
     )
     
     return {"result": final_output, "context": updated_context}
+
+def register_routes(router: APIRouter):
+    """Registers the workflow coordinator agent's routes with the provided APIRouter."""
+
+    @router.post("/agents/workflow_coordinator", summary="Coordinates and aggregates responses from multiple sub-agents", response_model=Dict[str, Any], tags=["MCP Agents"])
+    async def workflow_coordinator_route(payload: Dict[str, Any] = Body(..., examples={"Example": {"value": {}}})):
+        """
+        Coordinates and aggregates responses from multiple sub-agents using MCP for shared context.
+
+        **Input:**
+
+        *   No specific input parameters required. The agent simulates responses from multiple sub-agents internally.
+
+        **Process:** The agent simulates a scenario where multiple sub-agents contribute to a final decision or report.
+        It aggregates the responses from these sub-agents and updates the shared context accordingly using MCP.
+        This showcases how MCP can be used to coordinate complex workflows involving multiple agents.
+
+        **Example Input (JSON payload):**
+
+        ```json
+        {}
+        ```
+
+        **Example Output:**
+
+        ```json
+        {
+          "agent": "workflow_coordinator",
+          "result": {
+            "result": "Aggregated results: Result from agent 1, Result from agent 2, Result from agent 3",
+            "context": {
+              "sub_agent_results": {
+                "agent1": "Result from agent 1",
+                "agent2": "Result from agent 2",
+                "agent3": "Result from agent 3"
+              },
+              "workflow_status": "in_progress"
+            }
+          }
+        }
+        ```
+        """
+        # Inject the adapter so code references the same place that tests can patch
+        global mcp_adapter
+        from app.mcp_adapter import MCPAdapter
+        mcp_adapter = MCPAdapter()
+        
+        output = agent_main()
+        return {"agent": "workflow_coordinator", "result": output}

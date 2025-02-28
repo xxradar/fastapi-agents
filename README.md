@@ -52,7 +52,16 @@ This repository is actively expanding and in development with the following plan
 
 - **LLM Agents**: Will provide integration with various Large Language Models for more sophisticated reasoning and natural language understanding capabilities.
 - **MIPROv2 Agents**: Will implement the MIPROv2 framework for multi-step reasoning and planning in complex environments.
+- **Meta Dynamic Agents**: Will implement agents that are created based on a knowledge graph format.
+- **Supabase Agents**: Will implement the dynamically generated agents based on descriptions from a database.
+- **Omega AGI Agents**: Will implement agents for translation to the Omega AGI neural symbolic language for advanced reasoning.
 - **Additional Advanced Agents**: More specialized agents for various domains and use cases.
+
+### Potential Future Modules
+- **Omega AGI Chain of Thought Agents**: Will implement advanced agents coordination and swarm deployment using Omega AGI, MIPROV2, LLM (potential).
+- **AGI Agents**: Will implement agents for advanced AGI applications (potential).
+- **One Time Created Agents**: Will implement agents conceived, planned, and implemented for single use cases (potential).
+
 
 ## Mono Repo Structure
 

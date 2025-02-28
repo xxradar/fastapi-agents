@@ -123,13 +123,35 @@ Core Endpoints:
   Classifies input text into categories with a confidence score.
 
 
-### MCP and LLM Endpoints
+### MCP Agents
 
-- **MCP Showcase Agents:**  
-  `agents/multi_step_reasoning.py` with iterative reasoning capabilities
-  `agents/workflow_coordinator.py` with sub-agent coordination capabilities
-`agents/workflow_decisioning.py` with decision-making capabilities based on task 
-`agents/calculator.py` with MCP context sharing capabilities
+The MCP integration enables advanced context sharing and inter-module communication between agents. These agents showcase different aspects of MCP functionality:
+
+✅ **Calculator Agent**
+   - **Purpose**: Evaluates arithmetic expressions with context sharing via MCP.
+   - **Features**: Safely evaluates expressions and maintains context between calls.
+   - **Endpoint**: POST `/agents/calculator`
+   - **Example**: `{"expression": "3 + 4 * 2"}`
+
+✅ **Multi-Step Reasoning Agent**
+   - **Purpose**: Iteratively refines a hypothesis through context updates.
+   - **Features**: Demonstrates advanced reasoning capabilities using MCP for state management.
+   - **Endpoint**: POST `/agents/multi_step_reasoning`
+   - **Example**: `{"hypothesis": "The Earth is flat"}`
+
+✅ **Workflow Coordinator Agent**
+   - **Purpose**: Coordinates and aggregates responses from multiple sub-agents.
+   - **Features**: Simulates a workflow where multiple sub-agents contribute to a final decision or report.
+   - **Endpoint**: POST `/agents/workflow_coordinator`
+   - **Example**: `{}`
+
+✅ **Workflow Decisioning Agent**
+   - **Purpose**: Makes intelligent workflow decisions based on task descriptions.
+   - **Features**: Selects and executes sub-agents based on keywords in the task description.
+   - **Endpoint**: POST `/agents/workflow_decisioning`
+   - **Example**: `{"task_description": "Please analyze and report the data"}`
+
+For detailed documentation on MCP integration, see `/docs/MCP_Integration.md`.
 
 ---
 
@@ -170,6 +192,17 @@ This repository was created using Documentation First Coding methodologies:
    The project includes a complete test suite and regularly updated documentation.
 
 ---
+
+## Easter Egg
+
+```
+go install github.com/boyter/scc@latest
+scc .
+
+```
+
+---
+
 
 ## License
 

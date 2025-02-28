@@ -7,43 +7,65 @@ import os
 from app.mcp_adapter import MCPAdapter
 from agents.dspy_integration import load_agent, run_agent
 
+# Import agent route registrations
+from agents.classifier import register_routes as register_classifier_routes
+from agents.calculator import register_routes as register_calculator_routes
+from agents.multi_step_reasoning import register_routes as register_multi_step_reasoning_routes
+from agents.workflow_coordinator import register_routes as register_workflow_coordinator_routes
+from agents.workflow_decisioning import register_routes as register_workflow_decisioning_routes
+
 router = APIRouter()
 
 # Agent information dictionary
 AGENTS_INFO: List[Dict[str, str]] = [
-    
+    # Simple Agents
     {
+        "category": "Simple Agents",
         "name": "quote",
         "description": "Returns an inspirational quote.",
         "instructions": "Call /agent/quote with no additional parameters."
     },
     
     {
+        "category": "Simple Agents",
         "name": "classifier",
         "description": "Classifies input text using advanced rule-based logic.",
         "instructions": "Call /agent/classifier with INPUT_TEXT parameter."
     },
   
+    # MCP Agents
     {
+        "category": "MCP Agents",
         "name": "calculator",
-        "description": "Evaluates an arithmetic expression.",
-        "instructions": "Post to /agents/calculator with a JSON payload containing the expression."
+        "description": "Evaluates an arithmetic expression with context sharing via MCP.",
+        "details": "This agent demonstrates basic MCP functionality by evaluating arithmetic expressions and sharing the result through the Module Context Protocol. It safely evaluates expressions using a secure evaluation method and maintains context between calls.",
+        "instructions": "POST to /agents/calculator with a JSON payload containing the expression. Example: {\"expression\": \"3 + 4 * 2\"}",
+        "example_output": "{\"agent\": \"calculator\", \"result\": {\"result\": 11, \"context\": {\"expression\": \"3 + 4 * 2\", \"previous_result\": null}}}"
     },
     {
+        "category": "MCP Agents",
         "name": "multi_step_reasoning",
-        "description": "Iteratively refines a hypothesis by sharing and updating context through MCP. This agent takes an initial hypothesis and iteratively refines it by sharing and updating context through MCP. It continues refining the hypothesis until a final answer is received from MCP or the maximum number of iterations is reached.",
-        "instructions": "Post to /agents/multi_step_reasoning with a JSON payload containing an initial hypothesis. Example prompt: {\"hypothesis\": \"The Earth is flat\"}. Expected output: {\"result\": {\"final_answer\": \"The Earth is an oblate spheroid\"}, \"context\": {}}"
+        "description": "Iteratively refines a hypothesis through context sharing and updates via MCP.",
+        "details": "This agent demonstrates advanced reasoning capabilities using MCP for state management. It takes an initial hypothesis and iteratively refines it by sharing and updating context through MCP. The agent continues refining the hypothesis until a final answer is received from MCP or the maximum number of iterations is reached. This showcases how MCP can be used for complex, multi-step reasoning processes.",
+        "instructions": "POST to /agents/multi_step_reasoning with a JSON payload containing an initial hypothesis. Example: {\"hypothesis\": \"The Earth is flat\"}",
+        "example_output": "{\"agent\": \"multi_step_reasoning\", \"result\": {\"final_answer\": \"The Earth is an oblate spheroid\", \"context\": {\"iteration\": 1, \"hypothesis\": \"The Earth is flat\"}}}"
     },
     {
+        "category": "MCP Agents",
         "name": "workflow_coordinator",
-        "description": "Coordinates and aggregates responses from multiple sub-agents using MCP for shared context. This agent simulates a workflow where multiple sub-agents contribute to a final decision or report. It aggregates the responses from these sub-agents and updates the context accordingly using MCP.",
-        "instructions": "Post to /agents/workflow_coordinator with no additional parameters. Example prompt: {}. Expected output: {\"result\": \"Aggregated results: Result from agent 1, Result from agent 2, Result from agent 3\", \"context\": {}}"
+        "description": "Coordinates and aggregates responses from multiple sub-agents using MCP for shared context.",
+        "details": "This agent demonstrates workflow coordination using MCP. It simulates a scenario where multiple sub-agents contribute to a final decision or report. The agent aggregates the responses from these sub-agents and updates the shared context accordingly using MCP. This showcases how MCP can be used to coordinate complex workflows involving multiple agents.",
+        "instructions": "POST to /agents/workflow_coordinator with no additional parameters. Example: {}",
+        "example_output": "{\"agent\": \"workflow_coordinator\", \"result\": {\"result\": \"Aggregated results: Result from agent 1, Result from agent 2, Result from agent 3\", \"context\": {\"sub_agent_results\": {\"agent1\": \"Result from agent 1\", \"agent2\": \"Result from agent 2\", \"agent3\": \"Result from agent 3\"}, \"workflow_status\": \"in_progress\"}}}"
     },
     {
-    "name": "workflow_decisioning",
-    "description": "Coordinates and aggregates responses from multiple sub-agents using MCP for shared context. This agent examines a task description, selects sub-agents based on keywords, executes them, and updates shared state using MCP. It outputs a detailed, step-by-step decision process.",
-    "instructions": "POST to /agents/workflow_decisioning with a JSON payload containing a key 'task_description'. Example prompt: {\"task_description\": \"Please analyze and report the data\"}. Expected output: {\"result\": \"<final aggregated output with detailed steps>\", \"context\": { ... }}."
-  }
+        "category": "MCP Agents",
+        "name": "workflow_decisioning",
+        "description": "Makes intelligent workflow decisions based on task descriptions using MCP for state management.",
+        "details": "This agent demonstrates advanced decision-making capabilities using MCP. It examines a task description, selects appropriate sub-agents based on keywords in the description, executes them, and updates shared state using MCP. The agent outputs a detailed, step-by-step decision process, showcasing how MCP can be used for complex decisioning workflows.",
+        "instructions": "POST to /agents/workflow_decisioning with a JSON payload containing a key 'task_description'. Example: {\"task_description\": \"Please analyze and report the data\"}",
+        "example_output": "{\"agent\": \"workflow_decisioning\", \"result\": {\"result\": \"Aggregated results: Performed comprehensive data analysis\", \"context\": {\"task_description\": \"Please analyze and report the data\", \"selected_agents\": [\"analysis\"], \"sub_agent_results\": {\"analysis\": \"Performed comprehensive data analysis\"}, \"workflow_status\": \"in_progress\", \"steps\": [\"collect\", \"analyze\"]}}}"
+    }
 ]
 
 @router.get("/agents")
@@ -84,67 +106,13 @@ async def health_check():
 
 
 
-@router.post("/agents/calculator")
-async def calculator_agent_route(payload: dict):
-    """
-    Evaluates an arithmetic expression.
-    """
-    agent_file = os.path.join("agents", "calculator.py")
-    agent_module = load_agent(agent_file)
+# Calculator route is now registered via register_calculator_routes
 
-    # Inject the adapter so code references the same place that tests can patch
-    agent_module.mcp_adapter = MCPAdapter()
+# Multi-Step Reasoning route is now registered via register_multi_step_reasoning_routes
 
-    agent_module.EXPRESSION = payload.get("expression")
-    output = run_agent(agent_module)
-    return {"agent": "calculator", "result": output}
+# Workflow Decisioning route is now registered via register_workflow_decisioning_routes
 
-@router.post("/agents/multi_step_reasoning")
-async def multi_step_reasoning_agent_route(payload: dict):
-    """
-    Iteratively refines a hypothesis by sharing and updating context through MCP.
-    """
-    agent_file = os.path.join("agents", "multi_step_reasoning.py")
-    agent_module = load_agent(agent_file)
-
-    # Inject the adapter so code references the same place that tests can patch
-    agent_module.mcp_adapter = MCPAdapter()
-
-    agent_module.HYPOTHESIS = payload.get("hypothesis")
-    output = run_agent(agent_module)
-    return {"agent": "multi_step_reasoning", "result": output}
-
-@router.post("/agents/workflow_decisioning")
-async def workflow_decisioning_agent_route(payload: dict):
-    """
-    Coordinates and aggregates responses from multiple sub-agents using decision logic based on task descriptions.
-    """
-    agent_file = os.path.join("agents", "workflow_decisioning.py")
-    agent_module = load_agent(agent_file)
-
-    # Inject the adapter so code references the same place that tests can patch
-    agent_module.mcp_adapter = MCPAdapter()
-
-    # Set the task_description as a global variable
-    agent_module.TASK_DESCRIPTION = payload.get("task_description", "")
-    
-    # Run the agent without passing task_description as a parameter
-    output = run_agent(agent_module)
-    return {"agent": "workflow_decisioning", "result": output}
-
-@router.post("/agents/workflow_coordinator")
-async def workflow_coordinator_agent_route(payload: dict):
-    """
-    Coordinates and aggregates responses from multiple sub-agents using MCP for shared context.
-    """
-    agent_file = os.path.join("agents", "workflow_coordinator.py")
-    agent_module = load_agent(agent_file)
-
-    # Inject the adapter so code references the same place that tests can patch
-    agent_module.mcp_adapter = MCPAdapter()
-
-    output = run_agent(agent_module)
-    return {"agent": "workflow_coordinator", "result": output}
+# Workflow Coordinator route is now registered via register_workflow_coordinator_routes
 
 @router.post("/dynamic-agents/{agent_name}")
 async def execute_dynamic_agent(agent_name: str, payload: dict):
@@ -166,3 +134,10 @@ async def execute_dynamic_agent(agent_name: str, payload: dict):
         return {"agent": agent_name, "result": output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error executing agent: {str(e)}")
+
+# Register agent routes
+register_classifier_routes(router)
+register_calculator_routes(router)
+register_multi_step_reasoning_routes(router)
+register_workflow_coordinator_routes(router)
+register_workflow_decisioning_routes(router)

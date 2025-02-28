@@ -1,5 +1,7 @@
 import ast
 import logging
+from typing import Optional, Dict, Any
+from fastapi import APIRouter, Query, Body
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -91,3 +93,63 @@ def agent_main():
         return {"error": f"Failed to evaluate expression: {str(exc)}"}
 
     return {"result": result, "context": updated_context}
+
+def register_routes(router: APIRouter):
+    """Registers the calculator agent's routes with the provided APIRouter."""
+
+    @router.post("/agents/calculator", summary="Evaluates arithmetic expressions with context sharing", response_model=Dict[str, Any], tags=["MCP Agents"])
+    async def calculator_route(payload: Dict[str, Any] = Body(..., examples={"Example": {"value": {"expression": "3 + 4 * 2"}}})):
+        """
+        Evaluates an arithmetic expression with context sharing via MCP.
+
+        **Input:**
+
+        *   **expression (required, string):** The arithmetic expression to evaluate. Example: 3 + 4 * 2
+
+        **Process:** The expression is safely evaluated using Python's AST to prevent code injection.
+        Context is shared and updated via MCP, allowing for state management between calls.
+
+        **Example Input (JSON payload):**
+
+        ```json
+        {
+          "expression": "3 + 4 * 2"
+        }
+        ```
+
+        **Example Output:**
+
+        ```json
+        {
+          "agent": "calculator",
+          "result": {
+            "result": 11,
+            "context": {
+              "expression": "3 + 4 * 2",
+              "previous_result": null
+            }
+          }
+        }
+        ```
+
+        **Example Output (if expression is invalid):**
+
+        ```json
+        {
+          "agent": "calculator",
+          "result": {
+            "error": "Failed to evaluate expression: Invalid syntax: invalid syntax (line 1)"
+          }
+        }
+        ```
+        """
+        global EXPRESSION
+        EXPRESSION = payload.get("expression")
+        
+        # Inject the adapter so code references the same place that tests can patch
+        global mcp_adapter
+        from app.mcp_adapter import MCPAdapter
+        mcp_adapter = MCPAdapter()
+        
+        output = agent_main()
+        return {"agent": "calculator", "result": output}

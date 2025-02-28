@@ -1,5 +1,7 @@
 import logging
 import datetime
+from typing import Optional, Dict, Any
+from fastapi import APIRouter, Body
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -108,6 +110,67 @@ def agent_main():
     detailed_steps = "\n".join(context.get("steps", []))
     final_detailed_output = f"{final_output}\n\nDetailed Steps:\n{detailed_steps}"
     return {"result": final_detailed_output, "context": context}
+
+
+def register_routes(router: APIRouter):
+    """Registers the workflow decisioning agent's routes with the provided APIRouter."""
+
+    @router.post("/agents/workflow_decisioning", summary="Makes intelligent workflow decisions based on task descriptions", response_model=Dict[str, Any], tags=["MCP Agents"])
+    async def workflow_decisioning_route(payload: Dict[str, Any] = Body(..., examples={"Example": {"value": {"task_description": "Please analyze and report the data"}}})):
+        """
+        Makes intelligent workflow decisions based on task descriptions using MCP for state management.
+
+        **Input:**
+
+        *   **task_description (required, string):** The task description to analyze. Example: Please analyze and report the data
+
+        **Process:** The agent examines the task description, selects appropriate sub-agents based on keywords in the description,
+        executes them, and updates shared state using MCP. The agent outputs a detailed, step-by-step decision process,
+        showcasing how MCP can be used for complex decisioning workflows.
+
+        **Example Input (JSON payload):**
+
+        ```json
+        {
+          "task_description": "Please analyze and report the data"
+        }
+        ```
+
+        **Example Output:**
+
+        ```json
+        {
+          "agent": "workflow_decisioning",
+          "result": {
+            "result": "Aggregated results: Performed comprehensive data analysis, Generated detailed summary report\\n\\nDetailed Steps:\\nStep 1: Received task 'Please analyze and report the data'.\\nStep 2: Analyzed keywords and selected agents: analysis, report.\\nStep 3: Executed sub-agents and collected results.",
+            "context": {
+              "task_description": "Please analyze and report the data",
+              "selected_agents": ["analysis", "report"],
+              "sub_agent_results": {
+                "analysis": "Performed comprehensive data analysis",
+                "report": "Generated detailed summary report"
+              },
+              "workflow_status": "in_progress",
+              "steps": [
+                "Step 1: Received task 'Please analyze and report the data'.",
+                "Step 2: Analyzed keywords and selected agents: analysis, report.",
+                "Step 3: Executed sub-agents and collected results."
+              ]
+            }
+          }
+        }
+        ```
+        """
+        global TASK_DESCRIPTION
+        TASK_DESCRIPTION = payload.get("task_description", "")
+        
+        # Inject the adapter so code references the same place that tests can patch
+        global mcp_adapter
+        from app.mcp_adapter import MCPAdapter
+        mcp_adapter = MCPAdapter()
+        
+        output = agent_main()
+        return {"agent": "workflow_decisioning", "result": output}
 
 
 if __name__ == "__main__":

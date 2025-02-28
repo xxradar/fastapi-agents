@@ -4,7 +4,7 @@ from agents.dspy_integration import load_agent, run_agent
 from app.mcp_adapter import MCPAdapter
 from app.routes import router as agent_router
 
-app = FastAPI(title="MCP-LLM Agents")
+app = FastAPI(title="Fastapi MCP Agents")
 app.include_router(agent_router)
 
 @app.get("/agent/{agent_name}")
