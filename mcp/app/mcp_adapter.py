@@ -21,7 +21,7 @@ class MCPAdapter:
         headers = {"Authorization": f"Bearer {self.api_key}"}
         payload = {"context": context_data}
         try:
-            response = requests.post(url, json=payload, headers=headers)
+            response = requests.post(url, json=payload, headers=headers, timeout=60)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -39,7 +39,7 @@ class MCPAdapter:
         url = f"{self.endpoint}/response"
         headers = {"Authorization": f"Bearer {self.api_key}"}
         try:
-            response = requests.get(url, headers=headers)
+            response = requests.get(url, headers=headers, timeout=60)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
